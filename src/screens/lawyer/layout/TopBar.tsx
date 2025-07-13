@@ -1,0 +1,118 @@
+import { Bell, ChevronDown, Search, User } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import Image from "next/image";
+
+export default function TopBar() {
+  return (
+    <div className="hidden md:flex h-16 bg-white border-b border-gray-200  items-center justify-between px-6">
+      <div className="flex items-center gap-4">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <Input
+            placeholder="Search"
+            className="pl-10 w-64 h-9 bg-[#F5F9FF] border border-transparent focus:outline-none focus:ring-0 text-sm placeholder:text-gray-400"
+          />
+        </div>
+      </div>
+
+      <div className="flex items-center gap-6">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              className="flex items-center gap-2 text-sm text-gray-700 hover:bg-gray-50 px-3 py-2 h-auto"
+            >
+              <div className="flex flex-col items-start">
+                <span className="text-xs text-gray-400">Select Language</span>
+                <div className="flex items-center gap-1">
+                  <Image
+                    src="/assets/dashboard/english.svg"
+                    alt="English"
+                    width={16}
+                    height={16}
+                    className="rounded-full"
+                  />
+                  <span className="font-medium">English</span>
+                </div>
+              </div>
+              <ChevronDown className="w-4 h-4 text-gray-500" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48 bg-white shadow-lg">
+            <DropdownMenuItem className="flex items-center gap-2">
+              <Image
+                src="/assets/dashboard/english.svg"
+                alt="English"
+                width={16}
+                height={16}
+                className="rounded-full"
+              />
+              English
+            </DropdownMenuItem>
+            <DropdownMenuItem className="flex items-center gap-2">
+              <Image
+                src="/assets/dashboard/english.svg"
+                alt="Spanish"
+                width={16}
+                height={16}
+                className="rounded-full"
+              />
+              Spanish
+            </DropdownMenuItem>
+            <DropdownMenuItem className="flex items-center gap-2">
+              <Image
+                src="/assets/dashboard/english.svg"
+                alt="French"
+                width={16}
+                height={16}
+                className="rounded-full"
+              />
+              French
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <Button variant="ghost" size="icon" className="relative">
+          <Bell className="w-5 h-5 text-gray-600" />
+          <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full" />
+        </Button>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              className="flex items-center gap-2 hover:bg-gray-50 px-3 py-2 h-auto"
+            >
+              <User className="w-5 h-5 text-gray-700" />
+              <div className="flex flex-col items-start">
+                <span className="text-sm font-medium text-gray-800">
+                  John Steve
+                </span>
+                <span className="text-xs text-gray-500">Admin</span>
+              </div>
+              <ChevronDown className="w-4 h-4 text-gray-500" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48 bg-white shadow-lg">
+            <DropdownMenuItem>
+              <User className="w-4 h-4 mr-2" />
+              Profile
+            </DropdownMenuItem>
+            <DropdownMenuItem>Settings</DropdownMenuItem>
+            <DropdownMenuItem>Help & Support</DropdownMenuItem>
+            <DropdownMenuItem className="text-red-600">
+              Sign Out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </div>
+  );
+}
