@@ -1,18 +1,6 @@
 "use client";
 
-import {
-  BarChart3,
-  Home,
-  Users,
-  FileText,
-  CheckSquare,
-  Settings,
-  ChevronRight,
-  Menu,
-  Search,
-  ChevronDown,
-  User,
-} from "lucide-react";
+import { ChevronRight, Menu, Search, ChevronDown, User } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -25,16 +13,17 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/Sheet";
 
-const menuItems = [
-  { icon: Home, label: "Dashboard", active: true },
-  { icon: BarChart3, label: "Overview", active: false },
-  { icon: Users, label: "Clients", active: false },
-  { icon: FileText, label: "Analytics", active: false },
-  { icon: CheckSquare, label: "Tasks", active: false },
-  { icon: Settings, label: "Settings", active: false },
-];
+export interface Menu {
+  icon?: React.ElementType;
+  label?: string;
+  active: boolean;
+}
 
-export default function ResponsiveSidebar() {
+export default function ResponsiveSidebar({
+  menuItems,
+}: {
+  menuItems: Menu[];
+}) {
   const [open, setOpen] = useState(false);
 
   const SidebarContent = () => (
@@ -120,7 +109,7 @@ export default function ResponsiveSidebar() {
                     : "text-gray-600 hover:bg-white hover:text-gray-900"
                 }`}
               >
-                <item.icon className="w-5 h-5" />
+                {item.icon && <item.icon className="w-5 h-5" />}
                 {item.label}
                 {item.active && <ChevronRight className="w-4 h-4 ml-auto" />}
               </a>

@@ -53,7 +53,8 @@ const randomLastActivity = () =>
 // -------------------------------------------------------------------------
 /** create N rows that satisfy TableData */
 export function generateMockClientData(count = 10): TableData[] {
-  return Array.from({ length: count }, () => ({
+  return Array.from({ length: count }, (_, i) => ({
+    id: (i + 1).toString(),
     clientName: `${rand(firstNames)} ${rand(lastNames)}`,
     initiateDate: randomDate(),
     status: rand([...workflowStatuses]),

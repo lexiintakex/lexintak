@@ -17,6 +17,7 @@ export type CardProps = {
 };
 
 export interface TableData {
+  id?: string;
   clientName: string;
   initiateDate?: string;
   caseType?: string;
@@ -30,3 +31,12 @@ export interface ChartData {
   applications: number;
   completed: number;
 }
+
+export type LawyerData = {
+  id: string;
+  clientName: string;
+  password: string;
+  status: "Active" | "Submitted";
+  role: "Lawyer" | "Admin";
+  lastActivity: string;
+};

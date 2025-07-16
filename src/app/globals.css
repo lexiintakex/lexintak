@@ -10,16 +10,13 @@
 @theme {
   --color-gray-header: #f4f9ff;
   --color-blue-primary: #1e3a8a;
+  --color-gray-primary: #1f1f1f;
 }
 
 html,
 body {
   width: 100%;
   height: 100%;
-
-  user-select: none !important;
-  -moz-user-select: none !important;
-  -ms-user-select: none !important;
 }
 
 * {
@@ -36,18 +33,8 @@ body {
   width: 100%;
 }
 
-.no-select,
-img {
-  user-select: none !important;
-  -webkit-user-select: none !important;
-  -moz-user-select: none !important;
-  -ms-user-select: none !important;
-  -webkit-touch-callout: none !important;
-
-  /* Disable dragging */
-  user-drag: none !important;
-  -webkit-user-drag: none;
-  -khtml-user-drag: none;
-  -moz-user-drag: none;
-  -o-user-drag: none;
+.bg-banner-image {
+  background-image: url("../../public/assets/dashboard/bg.png");
+  background-size: cover;
+  background-position: center;
 }

@@ -29,9 +29,9 @@ export default function TopBar() {
               variant="ghost"
               className="flex items-center gap-2 text-sm text-gray-700 hover:bg-gray-50 px-3 py-2 h-auto"
             >
-              <div className="flex flex-col items-start">
+              <div className="flex flex-col items-start cursor-pointer">
                 <span className="text-xs text-gray-400">Select Language</span>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 cursor-pointer">
                   <Image
                     src="/assets/dashboard/english.svg"
                     alt="English"
@@ -39,14 +39,17 @@ export default function TopBar() {
                     height={16}
                     className="rounded-full"
                   />
-                  <span className="font-medium">English</span>
+                  <span className="font-medium cursor-pointer">English</span>
                 </div>
               </div>
               <ChevronDown className="w-4 h-4 text-gray-500" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48 bg-white shadow-lg">
-            <DropdownMenuItem className="flex items-center gap-2">
+          <DropdownMenuContent
+            align="end"
+            className="w-48 bg-white shadow-lg cursor-pointer"
+          >
+            <DropdownMenuItem className="flex items-center gap-2 cursor-pointer hover:bg-gray-header">
               <Image
                 src="/assets/dashboard/english.svg"
                 alt="English"
@@ -56,7 +59,7 @@ export default function TopBar() {
               />
               English
             </DropdownMenuItem>
-            <DropdownMenuItem className="flex items-center gap-2">
+            <DropdownMenuItem className="flex items-center gap-2 cursor-pointer hover:bg-gray-header">
               <Image
                 src="/assets/dashboard/english.svg"
                 alt="Spanish"
@@ -65,16 +68,6 @@ export default function TopBar() {
                 className="rounded-full"
               />
               Spanish
-            </DropdownMenuItem>
-            <DropdownMenuItem className="flex items-center gap-2">
-              <Image
-                src="/assets/dashboard/english.svg"
-                alt="French"
-                width={16}
-                height={16}
-                className="rounded-full"
-              />
-              French
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -85,10 +78,10 @@ export default function TopBar() {
         </Button>
 
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
+          <DropdownMenuTrigger asChild className="cursor-pointer">
             <Button
               variant="ghost"
-              className="flex items-center gap-2 hover:bg-gray-50 px-3 py-2 h-auto"
+              className="flex items-center cursor-pointer gap-2 hover:bg-gray-50 px-3 py-2 h-auto"
             >
               <User className="w-5 h-5 text-gray-700" />
               <div className="flex flex-col items-start">
@@ -101,12 +94,16 @@ export default function TopBar() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48 bg-white shadow-lg">
-            <DropdownMenuItem>
+            <DropdownMenuItem className="cursor-pointer hover:bg-gray-header">
               <User className="w-4 h-4 mr-2" />
               Profile
             </DropdownMenuItem>
-            <DropdownMenuItem>Settings</DropdownMenuItem>
-            <DropdownMenuItem>Help & Support</DropdownMenuItem>
+            <DropdownMenuItem className="cursor-pointer hover:bg-gray-header">
+              Settings
+            </DropdownMenuItem>
+            <DropdownMenuItem className="cursor-pointer hover:bg-gray-header">
+              Help & Support
+            </DropdownMenuItem>
             <DropdownMenuItem className="text-red-600">
               Sign Out
             </DropdownMenuItem>

@@ -1,39 +1,28 @@
 "use client";
-import { Home, Users, FileText, CheckSquare, Settings } from "lucide-react";
+
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const menuItems = [
-  { icon: Home, label: "Dashboard", active: true, path: "/lawyer/dashboard" },
-  {
-    icon: Users,
-    label: "Add Client",
-    active: false,
-    path: "/lawyer/add-client",
-  },
-  {
-    icon: FileText,
-    label: "Client Management",
-    active: false,
-    path: "/lawyer/client-management",
-  },
-  {
-    icon: CheckSquare,
-    label: "Tasks",
-    active: false,
-    path: "/lawyer/dashboard#",
-  },
-  {
-    icon: Settings,
-    label: "Settings",
-    active: false,
-    path: "/lawyer/dashboard#",
-  },
-];
+export interface SideMenu {
+  icon?: React.ElementType;
+  label?: string;
+  path: string | string[];
+}
 
-export default function Sidebar() {
+export default function Sidebar({ menuItems }: { menuItems: SideMenu[] }) {
   const path = usePathname();
+
+  const isActive = (itemPath: string | string[]) => {
+    if (typeof itemPath === "string") {
+      return path === itemPath;
+    }
+
+    return itemPath.some(
+      (p) => path === p || (p.endsWith("/") && path.startsWith(p))
+    );
+  };
+
   return (
     <div className="w-64 bg-[#F4F9FF] border-r border-gray-200 h-full flex flex-col">
       <div className="p-6 border-b border-gray-200">
@@ -50,21 +39,27 @@ export default function Sidebar() {
 
       <nav className="flex-1 p-4">
         <ul className="space-y-2">
-          {menuItems.map((item) => (
-            <li key={item.label}>
-              <Link
-                href={item.path}
-                className={`flex items-center gap-3 my-[10px] px-3 py-3 rounded-lg text-sm font-medium transition-colors ${
-                  path === item.path
-                    ? "bg-white text-[#1E3A8A]"
-                    : "text-gray-600 hover:bg-white hover:text-gray-900"
-                }`}
-              >
-                <item.icon className="w-5 h-5" />
-                {item.label}
-              </Link>
-            </li>
-          ))}
+          {menuItems.map((item) => {
+            const active = isActive(item.path);
+
+            return (
+              <li key={item.label}>
+                <Link
+                  href={
+                    typeof item.path === "string" ? item.path : item.path[0]
+                  }
+                  className={`flex items-center gap-3 my-[10px] px-3 py-3 rounded-lg text-sm font-medium transition-colors ${
+                    active
+                      ? "bg-white text-[#1E3A8A]"
+                      : "text-gray-600 hover:bg-white hover:text-gray-900"
+                  }`}
+                >
+                  {item.icon && <item.icon className="w-5 h-5" />}
+                  {item.label}
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       </nav>
     </div>

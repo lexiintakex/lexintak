@@ -1,15 +1,24 @@
 "use client";
 
 import clsx from "clsx";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 import React from "react";
 
 interface BannerProps {
   name: string;
   appName: string;
   className?: string;
+  isButton?: boolean;
 }
 
-export default function Banner({ name, appName, className }: BannerProps) {
+export default function Banner({
+  name,
+  appName,
+  className,
+  isButton,
+}: BannerProps) {
+  const { push } = useRouter();
   return (
     <div
       className={clsx(
@@ -59,12 +68,28 @@ export default function Banner({ name, appName, className }: BannerProps) {
       </div>
 
       {/* content */}
-      <div className="relative z-10">
-        <p className="flex items-center gap-2 font-medium text-sm sm:text-base">
-          <span className="text-lg md:text-xl lg:text-2xl">👋</span>
-          <span className="text-lg md:text-xl lg:text-2xl font-medium">{`Hi ${name},`}</span>
-        </p>
-        <p className="text-lg md:text-xl lg:text-2xl font-bold mt-[10px]">{`Welcome to ${appName}`}</p>
+      <div className="relative z-10 flex justify-between items-center w-full">
+        <div>
+          <p className="flex items-center gap-2 font-medium text-sm sm:text-base">
+            <span className="text-lg md:text-xl lg:text-2xl">👋</span>
+            <span className="text-lg md:text-xl lg:text-2xl font-medium">{`Hi ${name},`}</span>
+          </p>
+          <p className="text-lg md:text-xl lg:text-2xl font-bold mt-[10px]">{`Welcome to ${appName}`}</p>
+        </div>
+        {isButton && (
+          <button
+            onClick={() => push("/client/dashboard/select-visa")}
+            className="text-base flex flex-row items-center py-[16px]  gap-x-[10px] font-medium border-[1px] border-white px-[20px] cursor-pointer  bg-transparent rounded-xl"
+          >
+            <Image
+              src={"/assets/dashboard/start.svg"}
+              width={20}
+              height={20}
+              alt="Start"
+            />
+            Start New Application
+          </button>
+        )}
       </div>
     </div>
   );

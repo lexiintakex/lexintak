@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import * as Checkbox from "@radix-ui/react-checkbox";
 import Image from "next/image";
 import ExportDropdown from "@/components/ui/ExportDropDown";
+import { useRouter } from "next/navigation";
 
 function StatusBadge({ status }: { status: TableData["status"] }) {
   const colors = {
@@ -36,6 +37,7 @@ export default function DataTable({ tableData }: { tableData: TableData[] }) {
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [page, setPage] = React.useState(1);
 
+  const { push } = useRouter();
   const totalPages = Math.ceil(tableData.length / rowsPerPage);
   const pageData = React.useMemo(() => {
     const start = (page - 1) * rowsPerPage;
@@ -154,6 +156,7 @@ export default function DataTable({ tableData }: { tableData: TableData[] }) {
                       variant="ghost"
                       size="icon"
                       className="text-blue-600 cursor-pointer hover:bg-blue-100"
+                      onClick={() => push(`/lawyer/client-details/${row.id}`)}
                     >
                       <Eye className="h-4 w-4" />
                     </Button>
