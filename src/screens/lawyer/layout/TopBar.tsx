@@ -1,4 +1,5 @@
-import { Bell, ChevronDown, Search, User } from "lucide-react";
+"use client";
+import { ChevronDown, Search, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -8,8 +9,41 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Image from "next/image";
+import { useState } from "react";
 
 export default function TopBar() {
+  const [language, setLanguage] = useState("en");
+
+  const showOriginalPage = () => {
+    setLanguage("en");
+    const iframe = document.querySelector("iframe.skiptranslate");
+    if (iframe) {
+      const contentWindow = (iframe as HTMLIFrameElement).contentWindow;
+      const originalOption =
+        contentWindow?.document.getElementById(":1.close") ||
+        contentWindow?.document.querySelector("a.VIpgJd-ZVi9od-TvD9Pc-hSRGPd");
+      if (originalOption) originalOption.click();
+    } else {
+      console.error("Google Translate select element not found.");
+    }
+  };
+
+  const translatetoSpanish = () => {
+    setLanguage("es");
+    const selectElement = document.querySelector(".goog-te-combo");
+    if (selectElement) {
+      (selectElement as HTMLSelectElement).value = "es";
+      selectElement.dispatchEvent(new Event("change"));
+    } else {
+    }
+  };
+
+  const languageLabel = language === "en" ? "English" : "Spanish";
+  const flagSrc =
+    language === "en"
+      ? "/assets/dashboard/english.svg"
+      : "/assets/dashboard/spanish.jpg";
+
   return (
     <div className="hidden md:flex h-16 bg-white border-b border-gray-200  items-center justify-between px-6">
       <div className="flex items-center gap-4">
@@ -33,13 +67,15 @@ export default function TopBar() {
                 <span className="text-xs text-gray-400">Select Language</span>
                 <div className="flex items-center gap-1 cursor-pointer">
                   <Image
-                    src="/assets/dashboard/english.svg"
-                    alt="English"
+                    src={flagSrc}
+                    alt={languageLabel}
                     width={16}
                     height={16}
                     className="rounded-full"
                   />
-                  <span className="font-medium cursor-pointer">English</span>
+                  <span className="font-medium cursor-pointer">
+                    {languageLabel}
+                  </span>
                 </div>
               </div>
               <ChevronDown className="w-4 h-4 text-gray-500" />
@@ -49,7 +85,10 @@ export default function TopBar() {
             align="end"
             className="w-48 bg-white shadow-lg cursor-pointer"
           >
-            <DropdownMenuItem className="flex items-center gap-2 cursor-pointer hover:bg-gray-header">
+            <DropdownMenuItem
+              onClick={showOriginalPage} // Set back to English
+              className="flex items-center gap-2 cursor-pointer hover:bg-gray-header"
+            >
               <Image
                 src="/assets/dashboard/english.svg"
                 alt="English"
@@ -59,9 +98,12 @@ export default function TopBar() {
               />
               English
             </DropdownMenuItem>
-            <DropdownMenuItem className="flex items-center gap-2 cursor-pointer hover:bg-gray-header">
+            <DropdownMenuItem
+              onClick={translatetoSpanish}
+              className="flex items-center gap-2 cursor-pointer hover:bg-gray-header"
+            >
               <Image
-                src="/assets/dashboard/english.svg"
+                src="/assets/dashboard/spanish.jpg"
                 alt="Spanish"
                 width={16}
                 height={16}
@@ -72,10 +114,10 @@ export default function TopBar() {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <Button variant="ghost" size="icon" className="relative">
+        {/* <Button variant="ghost" size="icon" className="relative">
           <Bell className="w-5 h-5 text-gray-600" />
           <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full" />
-        </Button>
+        </Button> */}
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild className="cursor-pointer">
@@ -97,12 +139,6 @@ export default function TopBar() {
             <DropdownMenuItem className="cursor-pointer hover:bg-gray-header">
               <User className="w-4 h-4 mr-2" />
               Profile
-            </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer hover:bg-gray-header">
-              Settings
-            </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer hover:bg-gray-header">
-              Help & Support
             </DropdownMenuItem>
             <DropdownMenuItem className="text-red-600">
               Sign Out

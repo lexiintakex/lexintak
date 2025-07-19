@@ -4,27 +4,22 @@ import ResponsiveSidebar from "@/screens/lawyer/layout/ResponsiveSideBar";
 import Sidebar from "@/screens/lawyer/layout/SideBar";
 import TopBar from "@/screens/lawyer/layout/TopBar";
 import type React from "react";
-import { BarChart3, Home, Users, FileText, Settings } from "lucide-react";
+import { Home } from "lucide-react";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
 }
-const menuItems = [
-  { icon: Home, label: "Dashboard", active: true },
-  { icon: BarChart3, label: "Personal Information", active: false },
-  { icon: Users, label: "FAQS", active: false },
-  { icon: Settings, label: "HELP", active: false },
-];
+const menuItems = [{ icon: Home, label: "Dashboard", active: true }];
 
 const dekstopMenuItems = [
-  { icon: Home, label: "Dashboard", path: "/client/dashboard" },
-  {
-    icon: FileText,
-    label: "Personal Information",
-    path: ["/client/personal", "/lawyer/client-details/"],
-  },
-  { icon: Users, label: "FAQS", path: "/lawyer/add-client" },
-  { icon: Settings, label: "HELP", path: "/lawyer/settings" },
+  { icon: Home, label: "Dashboard", path: "//dashboard" },
+  // {
+  //   icon: FileText,
+  //   label: "Personal Information",
+  //   path: ["/client/personal", "/lawyer/client-details/"],
+  // },
+  // { icon: Users, label: "FAQS", path: "/lawyer/add-client" },
+  // { icon: Settings, label: "HELP", path: "/lawyer/settings" },
 ];
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {

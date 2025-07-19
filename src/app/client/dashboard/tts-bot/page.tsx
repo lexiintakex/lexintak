@@ -1,7 +1,8 @@
+import VoiceAssistantScreen from "@/screens/client/dashboard/talk-to-bot";
 import React from "react";
 
 function TalkWithBotPage() {
-  return <div>TalkWithBotPage</div>;
+  return <VoiceAssistantScreen />;
 }
 
 export default TalkWithBotPage;

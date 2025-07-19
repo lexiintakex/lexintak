@@ -24,21 +24,22 @@ function SeelecBot() {
           Talk with Voicebot
         </Link>
 
-        <button
+        <Link
+          href={"/client/dashboard/text-chatbot"}
           type="button"
           className="w-full  cursor-pointer flex items-center justify-center gap-2 text-base font-medium mt-4 py-[12px] border border-blue-primary text-blue-primary rounded-md hover:bg-blue-50 transition"
         >
           <MessageSquare className="w-5 h-5" />
           Chat with Chatbot
-        </button>
+        </Link>
 
-        <button
-          type="button"
+        <Link
+          href={"/client/dashboard/client-intake-form"}
           className="w-full cursor-pointer flex items-center justify-center gap-2 text-base font-medium mt-4 py-[12px] border border-blue-primary text-blue-primary rounded-md hover:bg-blue-50 transition"
         >
           <FileText className="w-5 h-5" />
           Fill out Form
-        </button>
+        </Link>
       </div>
       <label className="flex items-center space-x-2">
         <input

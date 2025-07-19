@@ -16,6 +16,7 @@ import * as Checkbox from "@radix-ui/react-checkbox";
 import Image from "next/image";
 import ExportDropdown from "@/components/ui/ExportDropDown";
 import { useRouter } from "next/navigation";
+import FiltersModal from "../client-management/Filters";
 
 function StatusBadge({ status }: { status: TableData["status"] }) {
   const colors = {
@@ -36,6 +37,7 @@ function StatusBadge({ status }: { status: TableData["status"] }) {
 export default function DataTable({ tableData }: { tableData: TableData[] }) {
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [page, setPage] = React.useState(1);
+  const [isFilterOpen, setIsFilterOpen] = React.useState(false);
 
   const { push } = useRouter();
   const totalPages = Math.ceil(tableData.length / rowsPerPage);
@@ -64,6 +66,7 @@ export default function DataTable({ tableData }: { tableData: TableData[] }) {
               width={40}
               height={40}
               className="w-10 h-10 cursor-pointer"
+              onClick={() => setIsFilterOpen(true)}
             />
             <ExportDropdown />
           </div>
@@ -227,6 +230,10 @@ export default function DataTable({ tableData }: { tableData: TableData[] }) {
           </div>
         </div>
       </div>
+      <FiltersModal
+        open={isFilterOpen}
+        onClose={() => setIsFilterOpen(false)}
+      />
     </div>
   );
 }
