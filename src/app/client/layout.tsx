@@ -12,7 +12,7 @@ interface DashboardLayoutProps {
 const menuItems = [{ icon: Home, label: "Dashboard", active: true }];
 
 const dekstopMenuItems = [
-  { icon: Home, label: "Dashboard", path: "//dashboard" },
+  { icon: Home, label: "Dashboard", path: "/client/dashboard" },
   // {
   //   icon: FileText,
   //   label: "Personal Information",
