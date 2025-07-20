@@ -10,10 +10,38 @@ const isBrowser = () => typeof window !== "undefined";
 
 export default function VerifyOtp() {
   const { push } = useRouter();
-  const [otp, setOtp] = useState<string[]>(Array(6).fill(""));
-  const [timer, setTimer] = useState<number>(60);
 
+  /* ── state ── */
+  const [otp, setOtp] = useState<string[]>(Array(6).fill(""));
+  const [timer, setTimer] = useState(60);
   const [loading, setLoading] = useState(false);
+  const [method, setMethod] = useState<"phone" | "email">("email");
+  const [value, setValue] = useState("");
+
+  /* ── init (client‑only) ── */
+  useEffect(() => {
+    if (!isBrowser()) return;
+
+    /** timestamp → timer */
+    const ts = localStorage.getItem("otp-timestamp");
+    if (ts) {
+      const remaining = 60 - Math.floor((Date.now() - parseInt(ts, 10)) / 1000);
+      setTimer(remaining > 0 ? remaining : 0);
+    }
+
+    /** method / value */
+    const m = localStorage.getItem("reset-method");
+    const v = localStorage.getItem("reset-value");
+    if (m === "phone" || m === "email") setMethod(m);
+    if (v) setValue(v);
+  }, []);
+
+  /* ── countdown ── */
+  useEffect(() => {
+    if (timer === 0) return;
+    const id = setInterval(() => setTimer((t) => t - 1), 1000);
+    return () => clearInterval(id);
+  }, [timer]);
 
   const resetTimer = () => {
     if (!isBrowser()) return;
@@ -21,25 +49,17 @@ export default function VerifyOtp() {
     setTimer(60);
   };
 
-  useEffect(() => {
-    if (!isBrowser()) return;
-    const stored = localStorage.getItem("otp-timestamp");
-    if (stored) {
-      const elapsed = Math.floor((Date.now() - parseInt(stored)) / 1000);
-      const remaining = 60 - elapsed;
-      setTimer(remaining > 0 ? remaining : 0);
-    }
-  }, []);
-
+  /* ── input change ── */
   const handleChange = (val: string, idx: number) => {
     if (!/^\d?$/.test(val)) return;
-    const newOtp = [...otp];
-    newOtp[idx] = val;
-    setOtp(newOtp);
-
+    setOtp((prev) => {
+      const next = [...prev];
+      next[idx] = val;
+      return next;
+    });
     if (val && idx < 5) {
-      const next = document.getElementById(`otp-${idx + 1}`);
-      if (next) (next as HTMLInputElement).focus();
+      const nextEl = document.getElementById(`otp-${idx + 1}`);
+      nextEl && (nextEl as HTMLInputElement).focus();
     }
   };
 
@@ -47,31 +67,27 @@ export default function VerifyOtp() {
     e: React.KeyboardEvent<HTMLInputElement>,
     idx: number
   ) => {
-    if (e.key === "Backspace") {
-      if (otp[idx]) {
-        const newOtp = [...otp];
-        newOtp[idx] = "";
-        setOtp(newOtp);
+    if (e.key !== "Backspace") return;
+    setOtp((prev) => {
+      const next = [...prev];
+      if (next[idx]) {
+        next[idx] = "";
       } else if (idx > 0) {
-        const prev = document.getElementById(`otp-${idx - 1}`);
-        if (prev) {
-          (prev as HTMLInputElement).focus();
-          const newOtp = [...otp];
-          newOtp[idx - 1] = "";
-          setOtp(newOtp);
-        }
+        next[idx - 1] = "";
+        const prevEl = document.getElementById(`otp-${idx - 1}`);
+        prevEl && (prevEl as HTMLInputElement).focus();
       }
-    }
+      return next;
+    });
   };
 
+  /* ── verify ── */
   const handleSubmit = async () => {
     const code = otp.join("");
     if (code.length !== 6 || !isBrowser()) return;
 
     setLoading(true);
     try {
-      const method = localStorage.getItem("reset-method");
-      const value = localStorage.getItem("reset-value");
       const payload =
         method === "phone" ? { phone: value, code } : { email: value, code };
 
@@ -92,38 +108,20 @@ export default function VerifyOtp() {
     }
   };
 
+  /* ── resend ── */
   const handleResend = async () => {
     if (!isBrowser()) return;
-    const method = localStorage.getItem("reset-method");
-    const value = localStorage.getItem("reset-value");
-    if (!method || !value) return;
+    const m = localStorage.getItem("reset-method");
+    const v = localStorage.getItem("reset-value");
+    if (!m || !v) return;
 
     try {
-      // const endpoint =
-      //   method === "phone"
-      //     ? "/verification/send-phone-code"
-      //     : "/verification/send-email-code";
-      // await axiosInstance.post(
-      //   endpoint,
-      //   method === "phone" ? { phone: value } : { email: value }
-      // );
+      /* call resend endpoint here if needed */
       resetTimer();
     } catch (err) {
       console.error("Resend OTP failed", err);
     }
   };
-
-  useEffect(() => {
-    if (timer > 0) {
-      const interval = setInterval(() => {
-        setTimer((prev) => prev - 1);
-      }, 1000);
-      return () => clearInterval(interval);
-    }
-  }, [timer]);
-
-  const method = localStorage.getItem("reset-method") ?? "email";
-  const value = localStorage.getItem("reset-value") ?? "";
 
   return (
     <div className="flex min-h-screen py-[20px]">
