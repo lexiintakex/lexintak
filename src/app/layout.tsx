@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Translate from "@/lib/Translate";
+import Provider from "@/lib/Proovider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -24,8 +25,10 @@ export default function RootLayout({
     <html lang="en" className={inter.className}>
       <body>
         <div id="google_translate_element"></div>
-        <Translate />
-        {children}
+        <Provider>
+          <Translate />
+          {children}
+        </Provider>
       </body>
     </html>
   );

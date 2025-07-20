@@ -18,24 +18,13 @@ const filterFields: FieldMeta[] = [
     ],
   },
   {
-    id: "caseType",
-    label: "Case Type",
+    id: "formType",
+    label: "Form Type",
     placeholder: "Select",
     type: "select",
     options: [
       { value: "work_visa", label: "Work Visa" },
       { value: "student_visa", label: "Student Visa" },
-    ],
-  },
-  {
-    id: "riskLevel",
-    label: "Risk Level",
-    placeholder: "Select",
-    type: "select",
-    options: [
-      { value: "low", label: "Low" },
-      { value: "medium", label: "Medium" },
-      { value: "high", label: "High" },
     ],
   },
 ];

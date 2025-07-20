@@ -1,18 +1,29 @@
 "use client";
 
-import React, { FormEvent } from "react";
+import React, { useCallback } from "react";
 import { Lock, User } from "lucide-react";
 import InputField from "@/components/ui/add-input";
 import Image from "next/image";
-import AuthBanner from "../../../../components/Banner/Banner";
+import AuthBanner from "@/components/Banner/Banner";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import useAuth from "@/hooks/useAuth";
+import { Controller, useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const loginSchema = z.object({
+  email: z.string().min(1, "Email is required"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+type LoginFormValues = z.infer<typeof loginSchema>;
 
 const fields = [
   {
-    id: "username",
-    label: "User Name",
-    placeholder: "John Doe",
+    id: "email",
+    label: "Email",
+    placeholder: "you@example.com",
     type: "text",
     icon: User,
   },
@@ -26,17 +37,28 @@ const fields = [
 ];
 
 export default function ClientLogin() {
-  const [values, setValues] = React.useState<Record<string, string>>({});
+  const { login } = useAuth();
   const { push } = useRouter();
 
-  const handleChange = (key: string, val: string) => {
-    setValues((prev) => ({ ...prev, [key]: val }));
-  };
+  const {
+    control,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+  });
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    push("/client/dashboard");
-  };
+  const onSubmit = useCallback(
+    async (data: LoginFormValues) => {
+      try {
+        await login(data);
+        push("/client/dashboard");
+      } catch (err) {
+        console.log("🚀 ~ onSubmit ~ err:", err);
+      }
+    },
+    [login, push]
+  );
 
   return (
     <div className="flex min-h-screen py-[20px]">
@@ -57,21 +79,35 @@ export default function ClientLogin() {
             Please login to continue
           </p>
 
-          <form className="space-y-4 mt-[30px]" onSubmit={handleSubmit}>
-            {fields.map((f) => (
-              <InputField
-                key={f.id}
-                {...f}
-                value={values[f.id] ?? ""}
-                onChange={(v) => handleChange(f.id, v)}
-              />
+          <form
+            className="space-y-4 mt-[30px]"
+            onSubmit={handleSubmit(onSubmit)}
+          >
+            {fields.map((field) => (
+              <div key={field.id}>
+                <Controller
+                  name={field.id as keyof LoginFormValues}
+                  control={control}
+                  render={({
+                    field: { onChange, value },
+                    fieldState: { error },
+                  }) => (
+                    <InputField
+                      {...field}
+                      value={value || ""}
+                      onChange={onChange}
+                      error={error?.message}
+                    />
+                  )}
+                />
+              </div>
             ))}
 
             <div className="flex items-center justify-between text-sm">
               <label className="flex items-center space-x-2">
                 <input
                   type="checkbox"
-                  className="rounded text-sm font-medium  border-gray-300 text-blue-primary focus:ring-blue-500"
+                  className="rounded text-sm font-medium border-gray-300 text-blue-primary focus:ring-blue-500"
                 />
                 <span className="text-sm font-medium ">Remember me</span>
               </label>
@@ -85,16 +121,17 @@ export default function ClientLogin() {
 
             <button
               type="submit"
-              className="w-full cursor-pointer text-base font-medium u mt-4 py-2 bg-blue-primary text-white rounded-md hover:bg-blue-800 transition"
+              disabled={isSubmitting}
+              className="w-full cursor-pointer text-base font-medium mt-4 py-2 bg-blue-primary text-white rounded-md hover:bg-blue-800 transition"
             >
-              Login
+              {isSubmitting ? "Logging in..." : "Login"}
             </button>
           </form>
         </div>
       </div>
       <AuthBanner
         title="Welcome to LexiIntake"
-        description="We’ll guide you step by step — by voice or chat — to make your <br /> immigration process easier. No paperwork. No confusion. Just clear, secure answers. <br/>  <br/>Need help or have a question? <br/> Just ask — like you would with a real person. Lexi is here to assist you.  "
+        description="We’ll guide you step by step — by voice or chat — to make your <br /> immigration process easier. No paperwork. No confusion. Just clear, secure answers. <br/>  <br/>Need help or have a question? <br/> Just ask — like you would with a real person. Lexi is here to assist you."
       />
     </div>
   );

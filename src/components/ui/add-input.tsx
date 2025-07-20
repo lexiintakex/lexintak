@@ -27,7 +27,7 @@ interface InputFieldProps extends FieldMeta {
   value: string;
   onChange: (value: string) => void;
   className?: string;
-  // Optional for bottom checkbox
+  error?: string;
   extraValues?: Record<string, string>;
   onExtraChange?: (id: string, value: string) => void;
 }
@@ -46,6 +46,7 @@ export default function InputField({
   bottomCheckbox,
   extraValues,
   onExtraChange,
+  error,
 }: InputFieldProps) {
   const [showPassword, setShowPassword] = React.useState(false);
   const isPassword = type === "password";
@@ -174,7 +175,6 @@ export default function InputField({
         </div>
       </fieldset>
 
-      {/* subToggle */}
       {subToggle && (
         <div className="mt-1 flex items-center gap-2 pl-1">
           <span className="text-[14px] text-blue-primary">
@@ -199,7 +199,6 @@ export default function InputField({
         </div>
       )}
 
-      {/* bottomCheckbox */}
       {bottomCheckbox && (
         <div className="mt-2 flex items-center gap-2 pl-1">
           <input
@@ -219,6 +218,8 @@ export default function InputField({
           </label>
         </div>
       )}
+
+      {error && <p className="text-sm text-red-500 mt-1 ml-1">{error}</p>}
     </div>
   );
 }

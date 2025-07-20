@@ -28,7 +28,7 @@ function AddLawyer() {
     },
     {
       id: "visaType",
-      label: "Visa Type",
+      label: "Form Type",
       placeholder: "Select",
       type: "select",
       options: [

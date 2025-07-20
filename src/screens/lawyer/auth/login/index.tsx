@@ -1,17 +1,30 @@
 "use client";
 
-import React, { FormEvent } from "react";
+import React, { useCallback } from "react";
 import { Lock, User } from "lucide-react";
 import InputField from "@/components/ui/add-input";
 import Image from "next/image";
-import AuthBanner from "../../../../components/Banner/Banner";
+import AuthBanner from "@/components/Banner/Banner";
 import { useRouter } from "next/navigation";
+import { Controller, useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import useAuth from "@/hooks/useAuth";
 
+// ✅ Zod schema
+const loginSchema = z.object({
+  email: z.string().email("Invalid email").min(1, "Email is required"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+type LoginFormValues = z.infer<typeof loginSchema>;
+
+// ✅ Fields config with email + password
 const fields = [
   {
-    id: "username",
-    label: "User Name",
-    placeholder: "John Doe",
+    id: "email",
+    label: "Email",
+    placeholder: "you@example.com",
     type: "text",
     icon: User,
   },
@@ -25,21 +38,32 @@ const fields = [
 ];
 
 export default function Login() {
-  const [values, setValues] = React.useState<Record<string, string>>({});
   const { push } = useRouter();
+  const { login } = useAuth();
 
-  const handleChange = (key: string, val: string) => {
-    setValues((prev) => ({ ...prev, [key]: val }));
-  };
+  const {
+    control,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+  });
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    push("/lawyer/dashboard");
-  };
+  const onSubmit = useCallback(
+    async (data: LoginFormValues) => {
+      try {
+        await login(data);
+        push("/lawyer/dashboard");
+      } catch (err) {
+        console.error("Login failed", err);
+      }
+    },
+    [login, push]
+  );
 
   return (
     <div className="flex min-h-screen py-[20px]">
-      <div className="flex flex-col justify-center items-center w-full lg:w-[55%]  bg-white">
+      <div className="flex flex-col justify-center items-center w-full lg:w-[55%] bg-white">
         <div className="w-full max-w-sm">
           <Image
             src="/assets/logo.svg"
@@ -56,21 +80,32 @@ export default function Login() {
             Please login to continue
           </p>
 
-          <form className="space-y-4 mt-[30px]" onSubmit={handleSubmit}>
-            {fields.map((f) => (
-              <InputField
-                key={f.id}
-                {...f}
-                value={values[f.id] ?? ""}
-                onChange={(v) => handleChange(f.id, v)}
+          <form
+            className="space-y-4 mt-[30px]"
+            onSubmit={handleSubmit(onSubmit)}
+          >
+            {fields.map((field) => (
+              <Controller
+                key={field.id}
+                name={field.id as keyof LoginFormValues}
+                control={control}
+                render={({ field: controllerField, fieldState: { error } }) => (
+                  <InputField
+                    {...field}
+                    value={controllerField.value || ""}
+                    onChange={controllerField.onChange}
+                    error={error?.message}
+                  />
+                )}
               />
             ))}
 
             <button
               type="submit"
-              className="w-full cursor-pointer text-base font-medium u mt-4 py-2 bg-blue-primary text-white rounded-md hover:bg-blue-800 transition"
+              disabled={isSubmitting}
+              className="w-full cursor-pointer text-base font-medium mt-4 py-2 bg-blue-primary text-white rounded-md hover:bg-blue-800 transition"
             >
-              Login
+              {isSubmitting ? "Logging in..." : "Login"}
             </button>
 
             <button

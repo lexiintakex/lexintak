@@ -10,8 +10,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Image from "next/image";
 import { useState } from "react";
+import Link from "next/link";
 
-export default function TopBar() {
+export default function TopBar({
+  signOutPath,
+  profilePath,
+}: {
+  signOutPath: string;
+  profilePath: string;
+}) {
   const [language, setLanguage] = useState("en");
 
   const showOriginalPage = () => {
@@ -138,10 +145,10 @@ export default function TopBar() {
           <DropdownMenuContent align="end" className="w-48 bg-white shadow-lg">
             <DropdownMenuItem className="cursor-pointer hover:bg-gray-header">
               <User className="w-4 h-4 mr-2" />
-              Profile
+              <Link href={profilePath}>Profile</Link>
             </DropdownMenuItem>
             <DropdownMenuItem className="text-red-600">
-              Sign Out
+              <Link href={signOutPath}>Sign Out</Link>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { LogOut, Mic, Send, StopCircle } from "lucide-react";
+import { Mic, Send, StopCircle } from "lucide-react";
 
 export function ChatTranscriptTab() {
   const [input, setInput] = useState("");
@@ -116,11 +116,7 @@ export function ChatTranscriptTab() {
         <div className="flex gap-x-[10px] pt-1">
           <Button className="bg-red-500 cursor-pointer text-white hover:bg-red-600 rounded-md px-4 py-2 text-sm flex items-center gap-2">
             <StopCircle className="h-4 w-4" />
-            Stop Chat
-          </Button>
-          <Button className="bg-[#E5ECFB] cursor-pointer text-blue-primary hover:bg-blue-100 rounded-md px-4 py-2 text-sm flex items-center gap-2">
-            <LogOut className="h-4 w-4" />
-            Exit
+            Stop Chat and Exit
           </Button>
         </div>
       </div>

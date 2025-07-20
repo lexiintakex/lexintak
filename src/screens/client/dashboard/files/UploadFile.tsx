@@ -5,6 +5,7 @@ import { File, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import Modal from "@/components/ui/modal";
 
 const documentTypes = [
   "Passport & Green Card",
@@ -21,37 +22,59 @@ const statusMap = {
   completed: "Completed",
 };
 
-const UploadDocuments = () => {
-  type DocumentStatus = keyof typeof statusMap;
+type DocumentStatus = keyof typeof statusMap;
+
+type Upload = {
+  name: string;
+  size: string;
+  file: File;
+  status: "uploading" | "success" | "error";
+};
+
+export default function UploadDocuments() {
   const [documents] = useState<Record<string, DocumentStatus>>(
     Object.fromEntries(documentTypes.map((doc) => [doc, "required"]))
   );
-  type Upload = {
-    name: string;
-    size: string;
-    status: "uploading" | "success" | "error";
-  };
+  const [uploads, setUploads] = useState<Upload[]>([]);
+  const [viewingFile, setViewingFile] = useState<File | null>(null);
+  const [fileToDelete, setFileToDelete] = useState<number | null>(null);
   const { push } = useRouter();
 
-  const [uploads, setUploads] = useState<Upload[]>([]);
+  const allowedTypes = [
+    "application/pdf",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // xlsx
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // docx
+  ];
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
-    const uploaded: Upload[] = Array.from(files).map((file) => ({
-      name: file.name,
-      size: `${(file.size / 1024).toFixed(2)}kb`,
-      status: "uploading" as const,
-    }));
-    setUploads([...uploads, ...uploaded]);
+
+    const uploaded: Upload[] = Array.from(files).map((file) => {
+      const isAllowed = allowedTypes.includes(file.type);
+      return {
+        name: file.name,
+        size: `${(file.size / 1024).toFixed(2)}kb`,
+        status: isAllowed ? "uploading" : "error",
+        file,
+      };
+    });
+
+    setUploads((prev) => [...prev, ...uploaded]);
 
     setTimeout(() => {
       setUploads((prev) =>
-        prev.map((f, i) =>
-          i % 2 === 0 ? { ...f, status: "success" } : { ...f, status: "error" }
+        prev.map((f) =>
+          f.status === "uploading" ? { ...f, status: "success" } : f
         )
       );
     }, 1500);
+  };
+
+  const handleDelete = () => {
+    if (fileToDelete === null) return;
+    setUploads((prev) => prev.filter((_, i) => i !== fileToDelete));
+    setFileToDelete(null);
   };
 
   return (
@@ -91,13 +114,12 @@ const UploadDocuments = () => {
         ))}
       </div>
 
-      {/* File upload section */}
       <div className="border-2 cursor-pointer border-dashed border-blue-200 mt-6 p-6 rounded-md bg-blue-50 text-center">
         <p className="text-sm mb-1 font-medium text-gray-700">
-          Drag images here or browse to select files
+          Drag files here or browse to select
         </p>
         <p className="text-xs text-gray-500 mb-4">
-          Attach as many files as you like, each file should not exceed 5mb
+          Only PDF, DOCX, XLSX allowed. Max 5MB each.
         </p>
         <label className="inline-block cursor-pointer bg-blue-primary text-white px-4 py-2 rounded-md">
           Browse
@@ -110,7 +132,7 @@ const UploadDocuments = () => {
         </label>
       </div>
 
-      <div className=" grid sm:grid-cols-2 md:grid-cols-2 gap-4 mt-[30px]">
+      <div className="grid sm:grid-cols-2 md:grid-cols-2 gap-4 mt-[30px]">
         {uploads.map((file, i) => (
           <div
             key={i}
@@ -124,23 +146,28 @@ const UploadDocuments = () => {
                 <div className="flex flex-col text-sm">
                   <span className="font-medium text-gray-700">{file.name}</span>
                   {file.status === "success" && (
-                    <span className="text-blue-500 text-xs underline cursor-pointer">
+                    <span
+                      className="text-blue-500 text-xs underline cursor-pointer"
+                      onClick={() => setViewingFile(file.file)}
+                    >
                       Click to view
                     </span>
                   )}
                   {file.status === "error" && (
                     <div className="text-red-600 text-xs">
-                      Upload failed, please try again
+                      Unsupported file type.
                       <br />
-                      <span className="underline cursor-pointer">
-                        {file.name}
-                      </span>
+                      <span className="underline">{file.name}</span>
                     </div>
                   )}
                 </div>
               </div>
-              <Trash2 className="text-gray-400 w-4 h-4 cursor-pointer" />
+              <Trash2
+                className="text-gray-400 w-4 h-4 cursor-pointer"
+                onClick={() => setFileToDelete(i)}
+              />
             </div>
+
             {file.status === "success" && (
               <div className="w-full bg-green-100 rounded-full h-2 mt-2">
                 <div
@@ -161,17 +188,65 @@ const UploadDocuments = () => {
         ))}
       </div>
 
-      <div className="mt-6">
-        <Button
-          variant="outline"
-          className="bg-blue-primary text-white cursor-pointer"
-          onClick={() => push("/client/dashboard/select-bot")}
+      {/* Feedbacks */}
+      {uploads.some((f) => f.status === "error") && (
+        <div className="bg-red-100 text-red-700 border border-red-300 px-4 py-2 rounded mt-6 text-sm">
+          Some files failed to upload. Please remove or reupload them to
+          continue.
+        </div>
+      )}
+
+      {/* Clear All */}
+      {uploads.length > 0 && (
+        <button
+          onClick={() => setUploads([])}
+          className="text-sm text-gray-500 underline hover:text-gray-700 mt-4"
         >
-          Skip Now
-        </Button>
-      </div>
+          Clear All Uploaded Files
+        </button>
+      )}
+
+      {/* Next Step */}
+      {uploads.length > 0 && uploads.every((f) => f.status === "success") && (
+        <div className="mt-6 flex flex-col items-center gap-3">
+          <Button
+            className="bg-blue-primary text-white cursor-pointer"
+            onClick={() => push("/client/dashboard/select-bot")}
+          >
+            All Documents Uploaded — Continue
+          </Button>
+          <p className="text-sm text-gray-500">
+            You can proceed to the next step.
+          </p>
+        </div>
+      )}
+
+      {viewingFile && (
+        <Modal
+          isOpen={true}
+          width="max-w-3xl"
+          title="Preview Document"
+          onClose={() => setViewingFile(null)}
+        >
+          <iframe
+            src={URL.createObjectURL(viewingFile)}
+            className="w-full h-[500px]"
+            frameBorder="0"
+          ></iframe>
+        </Modal>
+      )}
+
+      {fileToDelete !== null && (
+        <Modal
+          isOpen={true}
+          title="Confirm Delete"
+          onClose={() => setFileToDelete(null)}
+          onConfirm={handleDelete}
+          confirmText="Delete"
+        >
+          Are you sure you want to delete this file?
+        </Modal>
+      )}
     </div>
   );
-};
-
-export default UploadDocuments;
+}

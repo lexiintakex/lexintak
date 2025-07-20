@@ -11,6 +11,7 @@ import {
   Map,
   ArrowRight,
 } from "lucide-react";
+import Link from "next/link";
 
 export default function ClientIntakeForm() {
   const [values, setValues] = React.useState<Record<string, string>>({});
@@ -587,10 +588,13 @@ export default function ClientIntakeForm() {
         </section>
       ))}
       <div className="flex justify-start mt-8">
-        <button className="inline-flex items-center cursor-pointer px-6 py-3 rounded-md bg-blue-primary text-white shadow hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+        <Link
+          href={"/client/dashboard/success"}
+          className="inline-flex items-center cursor-pointer px-6 py-3 rounded-md bg-blue-primary text-white shadow hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
           Next
           <ArrowRight className="ml-2 h-5 w-5" />
-        </button>
+        </Link>
       </div>
     </>
   );

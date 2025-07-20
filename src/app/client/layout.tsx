@@ -9,33 +9,31 @@ import { Home } from "lucide-react";
 interface DashboardLayoutProps {
   children: React.ReactNode;
 }
-const menuItems = [{ icon: Home, label: "Dashboard", active: true }];
 
-const dekstopMenuItems = [
+const menuItems = [
   { icon: Home, label: "Dashboard", path: "/client/dashboard" },
-  // {
-  //   icon: FileText,
-  //   label: "Personal Information",
-  //   path: ["/client/personal", "/lawyer/client-details/"],
-  // },
-  // { icon: Users, label: "FAQS", path: "/lawyer/add-client" },
-  // { icon: Settings, label: "HELP", path: "/lawyer/settings" },
 ];
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <div className="flex">
       <aside className="hidden md:block fixed w-64 h-full border-r z-30 bg-gray-100">
-        <Sidebar menuItems={dekstopMenuItems} />
+        <Sidebar menuItems={menuItems} />
       </aside>
 
       <div className="md:hidden absolute top-4 left-4 z-40">
-        <ResponsiveSidebar menuItems={menuItems} />
+        <ResponsiveSidebar
+          menuItems={menuItems}
+          signOutPath="/auth/client-login"
+        />
       </div>
 
       <div className="flex flex-col flex-1 h-full min-w-0 md:ml-64">
         <header className="hidden md:block sticky top-0 h-16 z-20 bg-white border-b border-gray-200">
-          <TopBar />
+          <TopBar
+            signOutPath="/auth/client-login"
+            profilePath="/client/dashboard/profile"
+          />
         </header>
 
         {/* Page content */}
