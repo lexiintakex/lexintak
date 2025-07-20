@@ -12,6 +12,8 @@ import { usePathname, useRouter } from "next/navigation";
 import api from "@/lib/axios";
 import { AuthContextType, SignupData, User } from "@/types/auth";
 
+const isBrowser = () => typeof window !== "undefined";
+
 export const AuthContext = createContext<AuthContextType | undefined>(
   undefined
 );
@@ -23,6 +25,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const path = usePathname();
 
   useEffect(() => {
+    if (!isBrowser()) return;
     const storedToken = localStorage.getItem("token");
     if (storedToken) {
       setToken(storedToken);
@@ -32,6 +35,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = useCallback(
     async ({ email, password }: { email: string; password: string }) => {
+      if (!isBrowser()) return;
       const response = await api.post("/auth/login", { email, password });
       const { user, token } = response.data;
       console.log("🚀 ~ response:", response);
@@ -55,6 +59,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const logout = useCallback(() => {
+    if (!isBrowser()) return;
     setUser(null);
     setToken("");
     localStorage.removeItem("token");

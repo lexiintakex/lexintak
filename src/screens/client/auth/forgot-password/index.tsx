@@ -11,6 +11,7 @@ import axiosInstance from "@/lib/axios";
 
 const emailSchema = z.string().email("Enter a valid email");
 const phoneSchema = z.string().optional();
+const isBrowser = () => typeof window !== "undefined";
 
 export default function ClientForgotPassword() {
   const [selected, setSelected] = useState<"phone" | "email">("phone");
@@ -31,7 +32,7 @@ export default function ClientForgotPassword() {
   };
 
   const handleContinue = async () => {
-    if (!validate()) return;
+    if (!validate() || !isBrowser()) return;
 
     setLoading(true);
     const payload =

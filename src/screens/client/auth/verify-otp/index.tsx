@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import axiosInstance from "@/lib/axios";
 
+const isBrowser = () => typeof window !== "undefined";
+
 export default function VerifyOtp() {
   const { push } = useRouter();
   const [otp, setOtp] = useState<string[]>(Array(6).fill(""));
@@ -14,11 +16,13 @@ export default function VerifyOtp() {
   const [loading, setLoading] = useState(false);
 
   const resetTimer = () => {
+    if (!isBrowser()) return;
     localStorage.setItem("otp-timestamp", Date.now().toString());
     setTimer(60);
   };
 
   useEffect(() => {
+    if (!isBrowser()) return;
     const stored = localStorage.getItem("otp-timestamp");
     if (stored) {
       const elapsed = Math.floor((Date.now() - parseInt(stored)) / 1000);
@@ -62,7 +66,7 @@ export default function VerifyOtp() {
 
   const handleSubmit = async () => {
     const code = otp.join("");
-    if (code.length !== 6) return;
+    if (code.length !== 6 || !isBrowser()) return;
 
     setLoading(true);
     try {
@@ -89,6 +93,7 @@ export default function VerifyOtp() {
   };
 
   const handleResend = async () => {
+    if (!isBrowser()) return;
     const method = localStorage.getItem("reset-method");
     const value = localStorage.getItem("reset-value");
     if (!method || !value) return;
