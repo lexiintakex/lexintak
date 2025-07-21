@@ -61,5 +61,6 @@ export function generateMockClientData(count = 10): TableData[] {
     caseType: rand(caseTypes),
     assignedAttorney: rand(attorneys),
     lastActivity: randomLastActivity(),
+    note: "Initial consultation completed.",
   }));
 }

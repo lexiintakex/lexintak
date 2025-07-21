@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
   Eye,
   Edit,
@@ -17,6 +17,7 @@ import Image from "next/image";
 import ExportDropdown from "@/components/ui/ExportDropDown";
 import { useRouter } from "next/navigation";
 import FiltersModal from "../client-management/Filters";
+import CaseNotesModal from "@/components/ui/note-case-modal";
 
 function StatusBadge({ status }: { status: TableData["status"] }) {
   const colors = {
@@ -37,14 +38,30 @@ function StatusBadge({ status }: { status: TableData["status"] }) {
 export default function DataTable({ tableData }: { tableData: TableData[] }) {
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [page, setPage] = React.useState(1);
+  const [rows, setRows] = useState<TableData[]>(tableData);
   const [isFilterOpen, setIsFilterOpen] = React.useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [noteRow, setNoteRow] = useState<TableData | null>(null);
+
+  const openNoteModal = (row: TableData) => {
+    setNoteRow(row);
+    setModalOpen(true);
+  };
+
+  const saveNote = (newNote: string) => {
+    if (!noteRow) return;
+    setRows((prev) =>
+      prev.map((r) => (r.id === noteRow.id ? { ...r, note: newNote } : r))
+    );
+    setModalOpen(false);
+  };
 
   const { push } = useRouter();
   const totalPages = Math.ceil(tableData.length / rowsPerPage);
   const pageData = React.useMemo(() => {
     const start = (page - 1) * rowsPerPage;
-    return tableData.slice(start, start + rowsPerPage);
-  }, [page, rowsPerPage, tableData]);
+    return rows.slice(start, start + rowsPerPage);
+  }, [page, rowsPerPage, rows]);
 
   React.useEffect(() => setPage(1), [rowsPerPage]);
 
@@ -166,6 +183,7 @@ export default function DataTable({ tableData }: { tableData: TableData[] }) {
                     <Button
                       variant="ghost"
                       size="icon"
+                      onClick={() => openNoteModal(row)}
                       className="text-green-600 cursor-pointer hover:bg-green-100"
                     >
                       <Edit className="h-4 w-4" />
@@ -188,7 +206,7 @@ export default function DataTable({ tableData }: { tableData: TableData[] }) {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-gray-header px-4 py-3 border-t border-gray-200">
         <span className="text-sm text-gray-700">
           Total&nbsp;
-          <span className="font-medium">{tableData.length}</span>
+          <span className="font-medium">{rows.length}</span>
           &nbsp;entries
         </span>
 
@@ -234,6 +252,14 @@ export default function DataTable({ tableData }: { tableData: TableData[] }) {
         open={isFilterOpen}
         onClose={() => setIsFilterOpen(false)}
       />
+      {noteRow && (
+        <CaseNotesModal
+          open={modalOpen}
+          current={noteRow.note as string}
+          onSave={saveNote}
+          onClose={() => setModalOpen(false)}
+        />
+      )}
     </div>
   );
 }

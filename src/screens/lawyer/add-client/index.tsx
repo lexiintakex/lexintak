@@ -29,7 +29,7 @@ function AddClient() {
     },
     {
       id: "visaType",
-      label: "Foprm Type",
+      label: "Form Type",
       placeholder: "Select",
       type: "select", // Indicate this is a select field
       options: [

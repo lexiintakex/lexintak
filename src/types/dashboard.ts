@@ -24,6 +24,7 @@ export interface TableData {
   assignedAttorney?: string;
   lastActivity: string;
   status: "Active" | "Pending" | "Completed";
+  note?: string;
 }
 
 export interface ChartData {

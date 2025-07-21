@@ -6,11 +6,14 @@ import { X } from "lucide-react";
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
+  /** Optional confirm handler => shows default Cancel/Confirm footer */
   onConfirm?: () => void;
   confirmText?: string;
   title?: string;
-  children: React.ReactNode;
+  /** Custom footer JSX overrides default footer */
+  footer?: React.ReactNode;
   width?: string;
+  children: React.ReactNode;
 }
 
 export default function Modal({
@@ -20,6 +23,7 @@ export default function Modal({
   confirmText = "Confirm",
   title,
   children,
+  footer,
   width = "max-w-lg",
 }: ModalProps) {
   if (!isOpen) return null;
@@ -36,7 +40,7 @@ export default function Modal({
           </h3>
           <button
             onClick={onClose}
-            className="text-gray-primary  cursor-pointer hover:text-gray-800"
+            className="text-gray-primary hover:text-gray-800 cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -45,22 +49,25 @@ export default function Modal({
         {/* Body */}
         <div className="p-6">{children}</div>
 
-        {onConfirm && (
+        {/* Footer */}
+        {footer ? (
+          <div className="border-t px-6 py-4">{footer}</div>
+        ) : onConfirm ? (
           <div className="flex justify-end gap-2 border-t px-6 py-4">
             <button
               onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-blue-primary cursor-pointer border border-blue-primary rounded-md hover:text-white transition-all hover:bg-blue-primary"
+              className="px-4 py-2 text-smv cursor-pointer font-medium border border-blue-primary text-blue-primary rounded-md hover:bg-blue-primary hover:text-white transition"
             >
               Cancel
             </button>
             <button
               onClick={onConfirm}
-              className="px-4 py-2 text-sm font-medium cursor-pointer text-white bg-red-600 hover:bg-red-700 rounded"
+              className="px-4 py-2 cursor-pointer text-sm font-medium text-white bg-red-600 rounded hover:bg-red-700"
             >
               {confirmText}
             </button>
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   );
