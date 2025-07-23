@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import {
   Lightbulb,
@@ -12,30 +12,66 @@ import {
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import Vapi from "@vapi-ai/web";
+
+const API_KEY = "271e8a36-4373-44bd-9804-cde7d4ff9c49";
+const WORKFLOW_ID = "d1ad50a1-7adf-47e9-a391-56b7de0e530c";
 
 export default function VoiceAssistantScreen() {
+  const [vapi, setVapi] = useState<any>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [isMicMuted, setIsMicMuted] = useState(false);
   const [isSpeakerOn, setIsSpeakerOn] = useState(true);
 
-  const handleStartRecording = () => {
+  useEffect(() => {
+    const vapiInstance = new Vapi(API_KEY);
+    setVapi(vapiInstance);
+
+    vapiInstance.on("call-start", () => {
+      console.log("✅ Call started");
+    });
+
+    vapiInstance.on("call-end", () => {
+      console.log("🔴 Call ended");
+      setIsRecording(false);
+      setIsMicMuted(false);
+      setIsSpeakerOn(true);
+    });
+
+    vapiInstance.on("message", (message) => {
+      if (message.type === "transcript") {
+        console.log(`${message.role}: ${message.transcript}`);
+      }
+    });
+  }, []);
+
+  // ─────────────────────────────── Controls
+  const handleStartRecording = async () => {
+    if (!vapi) return;
+    await vapi.start(null, { maxDurationSeconds: 1800 }, null, WORKFLOW_ID);
     setIsRecording(true);
   };
 
   const handleEndCall = () => {
-    setIsRecording(false);
-    setIsMicMuted(false);
-    setIsSpeakerOn(true);
+    if (!vapi) return;
+    vapi.stop();
   };
 
   const toggleMicMute = () => {
+    if (!vapi) return;
+    if (isMicMuted) vapi.unmuteMicrophone();
+    else vapi.muteMicrophone();
     setIsMicMuted((prev) => !prev);
   };
 
   const toggleSpeaker = () => {
+    if (!vapi) return;
+    if (isSpeakerOn) vapi.mute();
+    else vapi.unmute();
     setIsSpeakerOn((prev) => !prev);
   };
 
+  // ─────────────────────────────── UI
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
       {!isRecording ? (
@@ -52,7 +88,6 @@ export default function VoiceAssistantScreen() {
             <ol className="list-decimal list-inside space-y-2 text-sm font-medium text-blue-primary">
               <li>Please speak clearly and answer as prompted.</li>
               <li>Your answers will be saved to your profile.</li>
-              <li>You can review your recordings later.</li>
               <li>Click the &ldquo;Start Recording&ldquo; button to begin.</li>
             </ol>
 
@@ -136,7 +171,7 @@ export default function VoiceAssistantScreen() {
                 onClick={toggleMicMute}
                 variant="ghost"
                 size="icon"
-                className="h-13 w-13  cursor-pointerrounded-full border border-blue-primary rounded-full cursor-pointer text-blue-primary hover:bg-blue-200"
+                className="h-13 w-13 rounded-full border border-blue-primary text-blue-primary hover:bg-blue-200"
               >
                 {isMicMuted ? (
                   <MicOff className="h-6 w-6" />
@@ -147,7 +182,7 @@ export default function VoiceAssistantScreen() {
               <Button
                 onClick={handleEndCall}
                 size="icon"
-                className="h-16 w-16 rounded-full cursor-pointer bg-red-500 hover:bg-red-600"
+                className="h-16 w-16 rounded-full bg-red-500 hover:bg-red-600"
               >
                 <PhoneOff className="h-8 w-8 text-white" />
               </Button>
@@ -155,12 +190,12 @@ export default function VoiceAssistantScreen() {
                 onClick={toggleSpeaker}
                 variant="ghost"
                 size="icon"
-                className="h-13 w-13 hover:bg-blue-200 rounded-full border-[1px] cursor-pointer border-blue-primary  text-gray-primary"
+                className="h-13 w-13 rounded-full border border-blue-primary text-blue-primary hover:bg-blue-200"
               >
                 {isSpeakerOn ? (
-                  <Volume2 className="h-6 w-6 text-blue-primary" />
+                  <Volume2 className="h-6 w-6" />
                 ) : (
-                  <VolumeX className="h-6 w-6 text-blue-primary" />
+                  <VolumeX className="h-6 w-6" />
                 )}
               </Button>
             </div>

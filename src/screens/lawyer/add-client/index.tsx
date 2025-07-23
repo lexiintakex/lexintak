@@ -1,5 +1,4 @@
 "use client";
-import Banner from "@/components/Banner";
 import InputField, { FieldMeta } from "@/components/ui/add-input";
 import React from "react";
 import { User, Mail, Phone, Lock, ArrowRight } from "lucide-react";
@@ -33,9 +32,8 @@ function AddClient() {
       placeholder: "Select",
       type: "select", // Indicate this is a select field
       options: [
-        { value: "type1", label: "Type 1" },
-        { value: "type2", label: "Type 2" },
-        { value: "type3", label: "Type 3" },
+        { value: "i-130", label: "I-130" },
+        { value: "I-485", label: "I-485" },
       ],
     },
     {
@@ -61,7 +59,7 @@ function AddClient() {
 
   return (
     <>
-      <Banner name="Steve" appName="Lexintake" />
+      {/* <Banner name="Steve" appName="Lexintake" /> */}
       <h1 className="text-lg md:text-xl lg:text-2xl font-bold mt-[20px]">
         Enter Client Details
       </h1>

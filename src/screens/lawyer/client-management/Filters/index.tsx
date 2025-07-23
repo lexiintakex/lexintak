@@ -23,8 +23,8 @@ const filterFields: FieldMeta[] = [
     placeholder: "Select",
     type: "select",
     options: [
-      { value: "work_visa", label: "Work Visa" },
-      { value: "student_visa", label: "Student Visa" },
+      { value: "i-130", label: "I-130" },
+      { value: "I-485", label: "I-485" },
     ],
   },
 ];

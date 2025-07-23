@@ -188,7 +188,6 @@ export default function UploadDocuments() {
         ))}
       </div>
 
-      {/* Feedbacks */}
       {uploads.some((f) => f.status === "error") && (
         <div className="bg-red-100 text-red-700 border border-red-300 px-4 py-2 rounded mt-6 text-sm">
           Some files failed to upload. Please remove or reupload them to
@@ -196,7 +195,6 @@ export default function UploadDocuments() {
         </div>
       )}
 
-      {/* Clear All */}
       {uploads.length > 0 && (
         <button
           onClick={() => setUploads([])}
@@ -206,17 +204,29 @@ export default function UploadDocuments() {
         </button>
       )}
 
-      {/* Next Step */}
-      {uploads.length > 0 && uploads.every((f) => f.status === "success") && (
+      {(uploads.length === 0 ||
+        uploads.every((f) => f.status === "success")) && (
         <div className="mt-6 flex flex-col items-center gap-3">
+          {uploads.length > 0 &&
+            uploads.every((f) => f.status === "success") && (
+              <Button
+                className="bg-blue-primary text-white cursor-pointer"
+                onClick={() => push("/client/dashboard/select-bot")}
+              >
+                All Documents Uploaded — Continue
+              </Button>
+            )}
+
           <Button
-            className="bg-blue-primary text-white cursor-pointer"
+            variant="outline"
+            className="text-gray-600"
             onClick={() => push("/client/dashboard/select-bot")}
           >
-            All Documents Uploaded — Continue
+            Skip for now
           </Button>
+
           <p className="text-sm text-gray-500">
-            You can proceed to the next step.
+            You can upload documents later in your dashboard.
           </p>
         </div>
       )}

@@ -32,9 +32,8 @@ function AddLawyer() {
       placeholder: "Select",
       type: "select",
       options: [
-        { value: "type1", label: "Type 1" },
-        { value: "type2", label: "Type 2" },
-        { value: "type3", label: "Type 3" },
+        { value: "i-130", label: "I-130" },
+        { value: "I-485", label: "I-485" },
       ],
     },
     {
