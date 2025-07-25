@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import Vapi from "@vapi-ai/web";
 
 const API_KEY = "271e8a36-4373-44bd-9804-cde7d4ff9c49";
-const WORKFLOW_ID = "d1ad50a1-7adf-47e9-a391-56b7de0e530c";
+const WORKFLOW_ID = "73da594c-0ad7-4d56-9f25-f696f15088dd";
 
 export default function VoiceAssistantScreen() {
   const [vapi, setVapi] = useState<any>(null);
