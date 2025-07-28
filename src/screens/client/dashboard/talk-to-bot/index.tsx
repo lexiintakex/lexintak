@@ -13,15 +13,28 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Vapi from "@vapi-ai/web";
+import useAuth from "@/hooks/useAuth";
+import { useWorkflowId } from "@/api/assistant";
+import Loader from "@/components/ui/loader";
+import ErrorMessage from "@/components/ui/error-message";
+import axiosInstance from "@/lib/axios";
 
 const API_KEY = "271e8a36-4373-44bd-9804-cde7d4ff9c49";
-const WORKFLOW_ID = "d1ad50a1-7adf-47e9-a391-56b7de0e530c";
+// const WORKFLOW_ID = "d91b9a3c-f0f8-4980-b30d-38364aa16e79";
 
 export default function VoiceAssistantScreen() {
   const [vapi, setVapi] = useState<any>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [isMicMuted, setIsMicMuted] = useState(false);
+  const [sessionId, setSessionId] = useState("");
   const [isSpeakerOn, setIsSpeakerOn] = useState(true);
+  const { user, globalLanguage } = useAuth();
+  const {
+    data: workflowId,
+    isLoading,
+    isError,
+  } = useWorkflowId(user?.form_type, globalLanguage);
+  console.log("🚀 ~ VoiceAssistantScreen ~ workflowId:", workflowId);
 
   useEffect(() => {
     const vapiInstance = new Vapi(API_KEY);
@@ -45,11 +58,55 @@ export default function VoiceAssistantScreen() {
     });
   }, []);
 
-  // ─────────────────────────────── Controls
+  // const handleStartRecording = async () => {
+  //   if (!vapi) return;
+  //   await vapi.start(null, { maxDurationSeconds: 1800 }, null, workflowId);
+  //   setIsRecording(true);
+  // };
+
+  // const handleStartRecording = async () => {
+  //   if (!vapi || !user || !workflowId) return;
+
+  //   try {
+  //     // const response = await axiosInstance.post("/session", {
+  //     //   language: globalLanguage,
+  //     //   form_type: user.form_type,
+  //     // });
+
+  //     // const session_id = response.data.session_id;
+
+  //     await vapi.sta(null, { maxDurationSeconds: 1800 }, null, workflowId);
+
+  //     setIsRecording(true);
+  //   } catch (err) {
+  //     console.error("Failed to create session or start Vapi:", err);
+  //   }
+  // };
+
   const handleStartRecording = async () => {
-    if (!vapi) return;
-    await vapi.start(null, { maxDurationSeconds: 1800 }, null, WORKFLOW_ID);
-    setIsRecording(true);
+    if (!vapi || !user || !workflowId) return;
+
+    try {
+      // const response = await axiosInstance.post("/session", {
+      //   language: globalLanguage,
+      //   form_type: user.form_type,
+      // });
+
+      // const session_id = response.data.session_id;
+
+      // await vapi.start(
+      //   { sessionId: session_id }, // ✅ Top-level sessionId
+      //   { maxDurationSeconds: 1800 }, // ✅ Duration
+      //   null, // ✅ No squad
+      //   workflowId // ✅ Workflow ID
+      // );
+      await vapi.start(null, { maxDurationSeconds: 1800 }, null, workflowId);
+
+      // setSessionId(session_id);
+      setIsRecording(true);
+    } catch (err) {
+      console.error("Failed to create session or start Vapi:", err);
+    }
   };
 
   const handleEndCall = () => {
@@ -70,6 +127,9 @@ export default function VoiceAssistantScreen() {
     else vapi.unmute();
     setIsSpeakerOn((prev) => !prev);
   };
+  if (isLoading) return <Loader text="Preparing voice assistant..." />;
+  if (isError)
+    return <ErrorMessage message="Unable to load assistant workflow." />;
 
   // ─────────────────────────────── UI
   return (

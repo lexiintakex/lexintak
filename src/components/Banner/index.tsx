@@ -10,6 +10,7 @@ interface BannerProps {
   appName: string;
   className?: string;
   isButton?: boolean;
+  buttonPath?: string;
 }
 
 export default function Banner({
@@ -17,6 +18,7 @@ export default function Banner({
   appName,
   className,
   isButton,
+  buttonPath,
 }: BannerProps) {
   const { push } = useRouter();
   return (
@@ -78,7 +80,8 @@ export default function Banner({
         </div>
         {isButton && (
           <button
-            onClick={() => push("/client/dashboard/select-visa")}
+            // onClick={() => push("/client/dashboard/select-visa")}
+            onClick={() => push(buttonPath as string)}
             className="text-base flex flex-row items-center py-[16px]  gap-x-[10px] font-medium border-[1px] border-white px-[20px] cursor-pointer  bg-transparent rounded-xl"
           >
             <Image

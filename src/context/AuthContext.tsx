@@ -8,7 +8,7 @@ import {
   useMemo,
   ReactNode,
 } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import api from "@/lib/axios";
 import { AuthContextType, SignupData, User } from "@/types/auth";
 
@@ -21,8 +21,10 @@ export const AuthContext = createContext<AuthContextType | undefined>(
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string>("");
-  const { push } = useRouter();
   const path = usePathname();
+  const [globalLanguage, setGlobalLanguage] = useState<"English" | "Spanish">(
+    "English"
+  );
 
   useEffect(() => {
     if (!isBrowser()) return;
@@ -36,9 +38,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = useCallback(
     async ({ email, password }: { email: string; password: string }) => {
       if (!isBrowser()) return;
-      const response = await api.post("/auth/login", { email, password });
+      const response = await api.post("/login", { email, password });
       const { user, token } = response.data;
-      console.log("🚀 ~ response:", response);
       setUser(user);
       setToken(token);
       localStorage.setItem("token", token);
@@ -54,8 +55,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const getUserById = useCallback(async () => {
-    // const response = await api.get("/auth/profile");
-    setUser(null);
+    const response = await api.get("/me");
+    setUser(response.data?.user);
   }, []);
 
   const logout = useCallback(() => {
@@ -64,8 +65,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setToken("");
     localStorage.removeItem("token");
     delete api.defaults.headers.common["Authorization"];
-    push("/");
-  }, [push]);
+  }, []);
 
   useEffect(() => {
     if (token) {
@@ -82,8 +82,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       signup,
       logout,
       getUserById,
+      globalLanguage,
+      setGlobalLanguage,
     }),
-    [user, token, login, signup, logout, getUserById]
+    [
+      user,
+      token,
+      login,
+      signup,
+      logout,
+      getUserById,
+      globalLanguage,
+      setGlobalLanguage,
+    ]
   );
 
   return (

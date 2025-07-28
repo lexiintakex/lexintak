@@ -11,6 +11,7 @@ import {
 import Image from "next/image";
 import { useState } from "react";
 import Link from "next/link";
+import useAuth from "@/hooks/useAuth";
 
 export default function TopBar({
   signOutPath,
@@ -20,9 +21,13 @@ export default function TopBar({
   profilePath: string;
 }) {
   const [language, setLanguage] = useState("en");
+  const { setGlobalLanguage, user } = useAuth();
+
+  const { logout } = useAuth();
 
   const showOriginalPage = () => {
     setLanguage("en");
+    setGlobalLanguage("English");
     const iframe = document.querySelector("iframe.skiptranslate");
     if (iframe) {
       const contentWindow = (iframe as HTMLIFrameElement).contentWindow;
@@ -37,6 +42,7 @@ export default function TopBar({
 
   const translatetoSpanish = () => {
     setLanguage("es");
+    setGlobalLanguage("Spanish");
     const selectElement = document.querySelector(".goog-te-combo");
     if (selectElement) {
       (selectElement as HTMLSelectElement).value = "es";
@@ -135,9 +141,9 @@ export default function TopBar({
               <User className="w-5 h-5 text-gray-700" />
               <div className="flex flex-col items-start">
                 <span className="text-sm font-medium text-gray-800">
-                  John Steve
+                  {user?.full_name}
                 </span>
-                <span className="text-xs text-gray-500">Admin</span>
+                <span className="text-xs text-gray-500 ">{user?.role}</span>
               </div>
               <ChevronDown className="w-4 h-4 text-gray-500" />
             </Button>
@@ -148,7 +154,9 @@ export default function TopBar({
               <Link href={profilePath}>Profile</Link>
             </DropdownMenuItem>
             <DropdownMenuItem className="text-red-600">
-              <Link href={signOutPath}>Sign Out</Link>
+              <Link href={signOutPath} onClick={logout}>
+                Sign Out
+              </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

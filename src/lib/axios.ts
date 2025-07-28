@@ -2,10 +2,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 const axiosInstance = axios.create({
-  baseURL: "https://apisbackend-production.up.railway.app/api",
-  headers: {
-    "Content-Type": "application/json",
-  },
+  baseURL: "http://localhost:5000/api",
 });
 
 axiosInstance.interceptors.request.use(
