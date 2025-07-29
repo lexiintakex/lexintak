@@ -111,7 +111,7 @@ export default function InputField({
           {Icon && <Icon className="absolute text-gray-500 w-4 h-4" />}
           {type === "select" ? (
             <SelectPrimitive.Root
-              value={value}
+              value={value ?? ""}
               onValueChange={onChange}
               defaultValue=""
             >
@@ -130,7 +130,7 @@ export default function InputField({
                     {options?.map((opt) => (
                       <SelectPrimitive.Item
                         key={opt.value}
-                        value={opt.value}
+                        value={opt.value ?? ""}
                         className="cursor-pointer px-3 py-1.5 text-sm rounded hover:bg-blue-100"
                       >
                         <SelectPrimitive.ItemText>
@@ -147,7 +147,7 @@ export default function InputField({
               id={id}
               type={displayedType}
               placeholder={placeholder}
-              value={value}
+              value={value ?? ""}
               onChange={(e) => onChange(e.target.value)}
               className={clsx(
                 commonInput,

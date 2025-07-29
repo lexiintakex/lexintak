@@ -6,6 +6,7 @@ import { generateMockClientData } from "./generateMockClientData";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useClientStatusTable } from "@/api/auth";
+import Loader from "@/components/ui/loader";
 
 function ClientManagement() {
   // const tableData = React.useMemo(() => generateMockClientData(15), []);
@@ -16,6 +17,10 @@ function ClientManagement() {
     limit: 10,
   });
 
+
+  if(isTableLoading){
+    return <Loader text="Loading..."/>
+  }
   return (
     <>
       <div className="flex justify-between w-full flex-row">

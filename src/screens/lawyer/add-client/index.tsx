@@ -3,12 +3,20 @@
 import React from "react";
 import InputField, { FieldMeta } from "@/components/ui/add-input";
 import { User, Mail, Phone, Lock, ArrowRight } from "lucide-react";
-import { useRegisterClient } from "@/api/auth";
+import { useClientStatusTable, useRegisterClient } from "@/api/auth";
 import useAuth from "@/hooks/useAuth";
+import { useRouter } from "next/navigation";
+import { z } from "zod";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { clientSchema } from "@/validation/auth";
 
 function AddClient() {
   const { user } = useAuth();
-  console.log("🚀 ~ AddClient ~ user:", user);
+  const { push } = useRouter();
+  const lawyerId = user?.user_id ?? "";
+
+  const {refetch} = useClientStatusTable()
 
   const fields: FieldMeta[] = [
     {
@@ -58,29 +66,41 @@ function AddClient() {
     },
   ];
 
-  const [values, setValues] = React.useState<Record<string, string>>({});
-  const handleChange = (key: string, val: string) =>
-    setValues((prev) => ({ ...prev, [key]: val }));
+  type ClientFormValues = z.infer<typeof clientSchema>;
 
-  const lawyerId = user?.user_id ?? "";
+ const {
+  control,
+  handleSubmit,
+  formState: { isSubmitting, errors },
+} = useForm<ClientFormValues>({
+  resolver: zodResolver(clientSchema),
+  defaultValues: {
+    full_name: "",
+    email: "",
+    phone: "",
+    form_type: "",
+    username: "",
+    password: "",
+  },
+});
+
 
   const { mutateAsync: registerClient, isPending } = useRegisterClient(
     () => console.log("Client registered!"),
     (msg) => console.log(msg)
   );
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    registerClient({
-      ...values,
-      created_by: lawyerId,
-      full_name: values.full_name,
-      email: values.email,
-      phone: values.phone,
-      form_type: values.form_type,
-      username: values.full_name,
-      password: values.password,
-    });
+  const onSubmit = async (data: ClientFormValues) => {
+    try {
+      await registerClient({
+        ...data,
+        created_by: lawyerId,
+      });
+      push("/lawyer/client-management");
+      refetch()
+    } catch (error) {
+      console.error("error", error);
+    }
   };
 
   return (
@@ -89,21 +109,29 @@ function AddClient() {
         Enter Client Details
       </h1>
       <form
-        onSubmit={handleSubmit}
+        onSubmit={handleSubmit(onSubmit)}
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-[30px]"
       >
         {fields.map((f) => (
-          <InputField
-            key={f.id}
-            {...f}
-            value={values[f.id] ?? ""}
-            onChange={(v) => handleChange(f.id, v)}
-          />
+          <div key={f.id}>
+            <Controller
+              name={f.id as keyof ClientFormValues}
+              control={control}
+              render={({ field, fieldState: { error } }) => (
+                <InputField
+                  {...f}
+                   value={field.value ?? ""} 
+                  onChange={field.onChange}
+                  error={error?.message}
+                />
+              )}
+            />
+          </div>
         ))}
         <div className="md:col-span-2 flex justify-start mt-4">
           <button
             type="submit"
-            disabled={isPending}
+            disabled={isPending || isSubmitting}
             className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-primary hover:bg-blue-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
             {isPending ? "Submitting..." : "Next"}
