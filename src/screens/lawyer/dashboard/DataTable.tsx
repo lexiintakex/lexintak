@@ -162,7 +162,7 @@ export default function DataTable({ tableData }: { tableData: TableData[] }) {
                   <StatusBadge status={row.status} />
                 </td>
                 <td className="px-4 py-3 text-sm whitespace-nowrap">
-                  {row.caseType}
+                  {row.formType}
                 </td>
                 <td className="px-4 py-3 text-sm whitespace-nowrap">
                   {row.assignedAttorney}

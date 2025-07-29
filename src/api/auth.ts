@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import axiosInstance from "@/lib/axios";
 import { useMutation } from "@tanstack/react-query";
 
@@ -131,6 +132,37 @@ export const useUpdateProfile = (
       const message =
         error?.response?.data?.error || "Failed to update profile";
       onError?.(message);
+    },
+  });
+};
+
+
+
+export interface ClientStatus {
+  clientName: string;
+  initiateDate: string;
+  status: "Pending" | "Active" | "Completed";
+  caseType: string;
+  assignedAttorney: string;
+  lastActivity: string;
+}
+
+interface Filters {
+  page?: number;
+  limit?: number;
+  search?: string;
+  email?: string;
+  status?: string;
+}
+
+export const useClientStatusTable = (filters: Filters = {}) => {
+  return useQuery<ClientStatus[]>({
+    queryKey: ["clientStatusTable", filters],
+    queryFn: async () => {
+      const res = await axiosInstance.get("/clients/status-table", {
+        params: filters,
+      });
+      return res.data;
     },
   });
 };

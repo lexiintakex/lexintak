@@ -5,10 +5,16 @@ import DataTable from "../dashboard/DataTable";
 import { generateMockClientData } from "./generateMockClientData";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useClientStatusTable } from "@/api/auth";
 
 function ClientManagement() {
-  const tableData = React.useMemo(() => generateMockClientData(15), []);
+  // const tableData = React.useMemo(() => generateMockClientData(15), []);
   const { push } = useRouter();
+
+  const { data: tableData = [], isLoading: isTableLoading } = useClientStatusTable({
+    page: 1,
+    limit: 10,
+  });
 
   return (
     <>

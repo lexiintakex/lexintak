@@ -21,6 +21,7 @@ export interface TableData {
   clientName: string;
   initiateDate?: string;
   caseType?: string;
+  formType?: string;
   assignedAttorney?: string;
   lastActivity: string;
   status: "Active" | "Pending" | "Completed";
