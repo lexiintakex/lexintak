@@ -12,10 +12,10 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "My Next App",
-  description: "Powered by Inter font",
+  title: "Lexiintake - AI-Powered Law Firm Intake",
+  description:
+    "A modern law firm intake application powered by AI, designed to streamline client onboarding and case management.",
 };
-
 export default function RootLayout({
   children,
 }: {
