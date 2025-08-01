@@ -18,6 +18,7 @@ export type CardProps = {
 
 export interface TableData {
   id?: string;
+  userId: string;
   clientName: string;
   initiateDate?: string;
   caseType?: string;

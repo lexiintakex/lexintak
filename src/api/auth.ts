@@ -136,9 +136,8 @@ export const useUpdateProfile = (
   });
 };
 
-
-
 export interface ClientStatus {
+  userId: string;
   clientName: string;
   initiateDate: string;
   status: "Pending" | "Active" | "Completed";

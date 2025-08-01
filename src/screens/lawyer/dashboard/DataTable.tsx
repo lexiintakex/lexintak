@@ -176,7 +176,9 @@ export default function DataTable({ tableData }: { tableData: TableData[] }) {
                       variant="ghost"
                       size="icon"
                       className="text-blue-600 cursor-pointer hover:bg-blue-100"
-                      onClick={() => push(`/lawyer/client-details/${row.id}`)}
+                      onClick={() =>
+                        push(`/lawyer/client-details/${row.userId}`)
+                      }
                     >
                       <Eye className="h-4 w-4" />
                     </Button>

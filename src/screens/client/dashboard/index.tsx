@@ -14,9 +14,7 @@ function Dashboard() {
     <div>
       <Banner
         buttonPath={
-          type
-            ? "/client/dashboard/select-bot"
-            : "/client/dashboard/select-visa"
+          type ? "/client/dashboard/files" : "/client/dashboard/select-visa"
         }
         appName="Lexintake"
         name="Steve"

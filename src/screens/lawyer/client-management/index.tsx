@@ -9,17 +9,16 @@ import { useClientStatusTable } from "@/api/auth";
 import Loader from "@/components/ui/loader";
 
 function ClientManagement() {
-  // const tableData = React.useMemo(() => generateMockClientData(15), []);
   const { push } = useRouter();
 
-  const { data: tableData = [], isLoading: isTableLoading } = useClientStatusTable({
-    page: 1,
-    limit: 10,
-  });
+  const { data: tableData = [], isLoading: isTableLoading } =
+    useClientStatusTable({
+      page: 1,
+      limit: 10,
+    });
 
-
-  if(isTableLoading){
-    return <Loader text="Loading..."/>
+  if (isTableLoading) {
+    return <Loader text="Loading..." />;
   }
   return (
     <>

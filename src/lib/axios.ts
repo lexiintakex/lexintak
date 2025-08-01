@@ -2,7 +2,8 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:5000/api",
+  // baseURL: "http://localhost:5000/api",
+  baseURL: "https://lexiintake.com/api/api/",
 });
 
 axiosInstance.interceptors.request.use(
@@ -47,6 +48,9 @@ axiosInstance.interceptors.response.use(
         break;
       case 404:
         showError("Not found. Please check the endpoint.");
+        break;
+      case 409:
+        toast.info(backendMessage || "Conflict: Application already exists.");
         break;
       case 500:
         showError("Server error. Please try again later.");

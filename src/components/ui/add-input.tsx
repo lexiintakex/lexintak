@@ -10,6 +10,7 @@ export interface FieldMeta {
   id: string;
   label: string;
   placeholder?: string;
+  required?: boolean;
   type?:
     | React.HTMLInputTypeAttribute
     | "select"

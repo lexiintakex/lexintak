@@ -8,7 +8,7 @@ function ClientFileUpload() {
   const [visible, setVisible] = useState(true);
   return (
     <>
-      <Banner appName="Lexintake" name="Steve" />
+      {/* <Banner appName="Lexintake" name="Steve" /> */}
       <div className="mt-[20px]">
         {visible && (
           <ToastAlert
