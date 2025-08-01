@@ -92,9 +92,7 @@ export default function ClientIntakeForm() {
     }
 
     try {
-      const checkRes = await axiosInstance.get(
-        `/applications/check-document/${userId}`
-      );
+      const checkRes = await axiosInstance.get(`/check-document/${userId}`);
       if (!checkRes.data.success) {
         return;
       }
