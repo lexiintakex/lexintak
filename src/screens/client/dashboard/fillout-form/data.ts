@@ -105,7 +105,7 @@ export const sections: {
         id: "children_info",
         label: "Do you have children?",
         type: "toggle",
-        required: true,
+        required: false,
       },
       {
         id: "number_of_children",
@@ -345,7 +345,7 @@ export const sections: {
         id: "immigration_application",
         label: "Have you previously filed any immigration application?",
         type: "toggle", // Yes / No switch
-        required: true,
+        required: false,
       },
       {
         id: "application_type",
@@ -380,7 +380,7 @@ export const sections: {
         id: "arrest_history",
         label: "Have you been arrested before?",
         type: "toggle",
-        required: true,
+        required: false,
       },
       {
         id: "arrest_reason",
