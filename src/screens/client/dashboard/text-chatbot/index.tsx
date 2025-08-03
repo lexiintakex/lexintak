@@ -12,6 +12,7 @@ import {
 } from "@/types/chatbot";
 import useAuth from "@/hooks/useAuth";
 import { API_URL } from "./apiUrl";
+import Link from "next/link";
 
 export function ChatTranscriptTab() {
   const [input, setInput] = useState<string>("");
@@ -195,10 +196,13 @@ export function ChatTranscriptTab() {
         </div>
 
         <div className="flex gap-x-[10px] pt-1">
-          <Button className="bg-red-500 cursor-pointer text-white hover:bg-red-600 rounded-md px-4 py-2 text-sm flex items-center gap-2">
+          <Link
+            href={"/client/dashboard/select-bot"}
+            className="bg-red-500 cursor-pointer text-white hover:bg-red-600 rounded-md px-4 py-2 text-sm flex items-center gap-2"
+          >
             <StopCircle className="h-4 w-4" />
             Stop Chat and Exit
-          </Button>
+          </Link>
         </div>
       </div>
     </div>
