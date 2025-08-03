@@ -23,6 +23,10 @@ export default function ClientIntakeForm() {
     Record<string, string>
   >({});
 
+  const [visibleFields, setVisibleFields] = useState<Record<string, boolean>>(
+    {}
+  );
+
   useEffect(() => {
     const responses: Record<string, any> = {};
     const fileUrls: Record<string, string> = {};
@@ -55,6 +59,26 @@ export default function ClientIntakeForm() {
     setValues(initialValues);
   }, []);
 
+  useEffect(() => {
+    const updatedVisibility: Record<string, boolean> = {};
+
+    sections.forEach((section) => {
+      section.fields.forEach((field) => {
+        if (field.dependsOn) {
+          const { field: depField, value } = field.dependsOn;
+
+          // Ensure both sides are strings
+          updatedVisibility[field.id] =
+            String(values[depField]) === String(value);
+        } else {
+          updatedVisibility[field.id] = true;
+        }
+      });
+    });
+
+    setVisibleFields(updatedVisibility);
+  }, [values]);
+
   const handleChange = (key: string, val: string) => {
     setValues((prev) => ({ ...prev, [key]: val }));
     setErrors((prev) => {
@@ -69,13 +93,13 @@ export default function ClientIntakeForm() {
     sections.forEach((section) => {
       section.fields.forEach((field) => {
         const required = field.required ?? true;
-        if (required && !values[field.id]) {
+        const visible = visibleFields[field.id];
+        if (required && visible && !values[field.id]) {
           newErrors[field.id] = `${field.label || field.id} is required.`;
         }
       });
     });
     setErrors(newErrors);
-    console.log("error", errors);
     return Object.keys(newErrors).length === 0;
   };
 
@@ -84,8 +108,8 @@ export default function ClientIntakeForm() {
       toast.error("Please fill in all required fields.");
       return;
     }
-    const userId = user?.user_id;
 
+    const userId = user?.user_id;
     if (!userId) {
       toast.error("User not authenticated.");
       return;
@@ -93,9 +117,7 @@ export default function ClientIntakeForm() {
 
     try {
       const checkRes = await axiosInstance.get(`/check-document/${userId}`);
-      if (!checkRes.data.success) {
-        return;
-      }
+      if (!checkRes.data.success) return;
 
       const formData = new FormData();
       formData.append("document_type", "identity_documents");
@@ -106,7 +128,6 @@ export default function ClientIntakeForm() {
 
         const metadata = new File([file], fileName, { type: file.type });
         formData.append("files", metadata, fileName);
-
         formData.append("file_types", docType);
       }
 
@@ -122,8 +143,6 @@ export default function ClientIntakeForm() {
       }
 
       const { documents_id } = uploadRes.data;
-      console.log("document_id", documents_id);
-
       const res = await axiosInstance.post("/client-intake", {
         responses: values,
         language: "English",
@@ -149,26 +168,34 @@ export default function ClientIntakeForm() {
     <>
       {sections.map((section) => (
         <section key={section.title} className="mt-10 first:mt-8">
-          <h2 className="text-lg font-semibold mb-4 text-gray-900">
-            {section.title}
-          </h2>
+          {(!section.dependsOn ||
+            String(values[section.dependsOn.field]) ===
+              String(section.dependsOn.value)) &&
+            section.title && (
+              <h2 className="text-lg font-semibold mb-4 text-gray-900">
+                {section.title}
+              </h2>
+            )}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {section.fields.map((field) => (
-              <div key={field.id}>
-                <InputField
-                  {...field}
-                  value={values[field.id] ?? ""}
-                  onChange={(val) => handleChange(field.id, val)}
-                  extraValues={values}
-                  onExtraChange={handleChange}
-                />
-                {errors[field.id] && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors[field.id]}
-                  </p>
-                )}
-              </div>
-            ))}
+            {section.fields.map(
+              (field) =>
+                visibleFields[field.id] && (
+                  <div key={field.id}>
+                    <InputField
+                      {...field}
+                      value={values[field.id] ?? ""}
+                      onChange={(val) => handleChange(field.id, val)}
+                      extraValues={values}
+                      onExtraChange={handleChange}
+                    />
+                    {errors[field.id] && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors[field.id]}
+                      </p>
+                    )}
+                  </div>
+                )
+            )}
           </div>
         </section>
       ))}

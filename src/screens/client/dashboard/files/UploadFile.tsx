@@ -292,7 +292,7 @@ export default function UploadDocuments() {
           </Button>
           <Button
             variant="outline"
-            className="text-gray-600"
+            className="text-gray-600 cursor-pointer"
             onClick={() => push("/client/dashboard/select-bot")}
           >
             Skip for now

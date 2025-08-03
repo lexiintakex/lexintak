@@ -1,57 +1,140 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Mic, Send, StopCircle } from "lucide-react";
+import {
+  APIServerMessage,
+  ChatMessage,
+  ChatResponse,
+  HistoryResponse,
+} from "@/types/chatbot";
+import useAuth from "@/hooks/useAuth";
+import { API_URL } from "./apiUrl";
 
 export function ChatTranscriptTab() {
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState<string>("");
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
-  const chatMessages = [
-    {
-      type: "clientbot",
-      text: "How many children do you have?",
-      sender: "Chatbot",
-      avatar: "/assets/dashboard/chatbot-avatar.svg",
-    },
-    {
+  const { user } = useAuth();
+  const user_id = user?.user_id || "default_user_id";
+  const session_id = user?.user_id || "default_session_id";
+
+  // Scroll to latest message
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [chatMessages]);
+
+  // Format messages
+  const transformMessages = (messages: APIServerMessage[]): ChatMessage[] => {
+    return messages.map((msg) => ({
+      type: msg.role === "user" ? "client" : "clientbot",
+      text: msg.content,
+      sender: msg.role === "user" ? "Client" : "Chatbot",
+      avatar:
+        msg.role === "user"
+          ? "/assets/dashboard/client-avatar.svg"
+          : "/assets/dashboard/chatbot-avatar.svg",
+    }));
+  };
+
+  // Fetch chat history
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        const res = await fetch(
+          `${API_URL}/history?session_id=${session_id}&user_id=${user_id}`
+        );
+        const data: HistoryResponse[] = await res.json();
+
+        if (data?.[0]?.messages?.length > 0) {
+          const transformed = transformMessages(data[0].messages);
+          setChatMessages(transformed);
+        } else {
+          // Initial message
+          setChatMessages([
+            {
+              type: "clientbot",
+              text: "What is your legal name?",
+              sender: "Chatbot",
+              avatar: "/assets/dashboard/chatbot-avatar.svg",
+            },
+          ]);
+        }
+      } catch (error) {
+        console.error("Error fetching history:", error);
+      }
+    };
+
+    fetchHistory();
+  }, [user_id, session_id]);
+
+  // Send user message
+  const sendMessage = async () => {
+    if (!input.trim()) return;
+
+    const userMessage: ChatMessage = {
       type: "client",
-      text: "I have two daughters and one son.",
+      text: input,
       sender: "Client",
       avatar: "/assets/dashboard/client-avatar.svg",
-    },
-    {
+    };
+
+    const loadingMessage: ChatMessage = {
       type: "clientbot",
-      text: "What is your father name?",
+      text: "Typing...",
       sender: "Chatbot",
       avatar: "/assets/dashboard/chatbot-avatar.svg",
-    },
-    {
-      type: "client",
-      text: "Alex Jones",
-      sender: "Client",
-      avatar: "/assets/dashboard/client-avatar.svg",
-    },
-    {
-      type: "clientbot",
-      text: "What is your mother name?",
-      sender: "Chatbot",
-      avatar: "/assets/dashboard/chatbot-avatar.svg",
-    },
-    {
-      type: "client",
-      text: "Liana Jones",
-      sender: "Client",
-      avatar: "/assets/dashboard/client-avatar.svg",
-    },
-  ];
+    };
+
+    const updatedMessages = [...chatMessages, userMessage, loadingMessage];
+    setChatMessages(updatedMessages);
+    setInput("");
+
+    try {
+      const res = await fetch(`${API_URL}/chat`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          session_id,
+          user_id,
+          message: input,
+        }),
+      });
+
+      const data: ChatResponse = await res.json();
+
+      if (data?.history) {
+        const transformed = transformMessages(data.history);
+        setChatMessages(transformed);
+      }
+    } catch (error) {
+      console.error("Error sending message:", error);
+      setChatMessages([
+        ...updatedMessages.slice(0, -1),
+        {
+          type: "clientbot",
+          text: "Sorry, something went wrong.",
+          sender: "Chatbot",
+          avatar: "/assets/dashboard/chatbot-avatar.svg",
+        },
+      ]);
+    }
+  };
 
   return (
-    <div className="max-w-5xl w-full mx-auto p-6  rounded-lg shadow">
+    <div className="max-w-5xl w-full mx-auto p-6 rounded-lg shadow-xl bg-white">
       <h3 className="text-lg font-semibold text-gray-900 mb-2">Live Chat</h3>
 
-      <div className="space-y-6 bg-white rounded-lg p-4 max-h-[400px] overflow-y-auto">
+      <div className="space-y-6 bg-white border border-gray-200 rounded-lg p-4 max-h-[50vh] min-h-[50vh] overflow-y-auto">
         {chatMessages.map((msg, index) => (
           <div
             key={index}
@@ -68,11 +151,11 @@ export function ChatTranscriptTab() {
                 {msg.avatar ? (
                   <AvatarImage src={msg.avatar} alt={msg.sender} />
                 ) : (
-                  <AvatarFallback>{msg.sender[0]}</AvatarFallback>
+                  <AvatarFallback>{msg.sender?.[0] || "?"}</AvatarFallback>
                 )}
               </Avatar>
               <div
-                className={`max-w-xs rounded-md px-4 py-3 text-sm ${
+                className={`max-w-xl rounded-md px-4 py-3 text-sm ${
                   msg.type === "client" ? "bg-[#F4F9FF]" : "bg-[#F2F6FA]"
                 }`}
               >
@@ -86,28 +169,26 @@ export function ChatTranscriptTab() {
             </div>
           </div>
         ))}
+        <div ref={messagesEndRef} />
       </div>
 
       <div className="mt-6 space-y-3">
         <div className="flex items-center border border-blue-primary rounded-md px-3 py-2 bg-white">
           <input
             type="text"
-            placeholder="Can you please repeat?"
+            placeholder="Type your answer..."
             className="flex-1 border-none outline-none text-sm"
             value={input}
             onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") sendMessage();
+            }}
           />
           <Button
             variant="ghost"
             size="icon"
             className="text-blue-primary cursor-pointer"
-          >
-            <Mic className="w-5 h-5" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-blue-primary cursor-pointer"
+            onClick={sendMessage}
           >
             <Send className="w-5 h-5" />
           </Button>

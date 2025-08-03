@@ -5,6 +5,10 @@ import React from "react";
 import { Eye, EyeOff, ChevronDown } from "lucide-react";
 import * as SelectPrimitive from "@radix-ui/react-select";
 import * as SwitchPrimitive from "@radix-ui/react-switch";
+export interface FieldDependency {
+  field: string;
+  value: any;
+}
 
 export interface FieldMeta {
   id: string;
@@ -22,6 +26,7 @@ export interface FieldMeta {
   subToggle?: { leftLabel: string; rightLabel: string };
   bottomCheckbox?: { id: string; label: string };
   colSpan?: 1 | 2 | 3 | 4;
+  dependsOn?: FieldDependency;
 }
 
 interface InputFieldProps extends FieldMeta {
@@ -31,6 +36,7 @@ interface InputFieldProps extends FieldMeta {
   error?: string;
   extraValues?: Record<string, string>;
   onExtraChange?: (id: string, value: string) => void;
+  dependsOn?: FieldDependency;
 }
 
 export default function InputField({

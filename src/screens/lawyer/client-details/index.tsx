@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -12,6 +12,8 @@ import { StatusHistoryTab } from "./client-tabs/status-history";
 import { ApplicationManagement } from "./application-manage";
 import { AddNotes } from "./add-notes";
 import { ArrowRight } from "lucide-react";
+import { useApplicationByUserId } from "@/api/applications";
+import Loader from "@/components/ui/loader";
 
 const validTabs = [
   "personal-information",
@@ -23,6 +25,8 @@ const validTabs = [
 export default function ClientDetails() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { id } = useParams();
+  const { data, isLoading, isError } = useApplicationByUserId(id as string);
   const tabParam = searchParams.get("selectTab");
 
   const initialTab = validTabs.includes(tabParam || "")
@@ -40,6 +44,9 @@ export default function ClientDetails() {
       scroll: false,
     });
   };
+
+  if (isLoading) return <Loader text="Application Loading..." />;
+  if (isError || !data) return <p>Failed to load client data.</p>;
 
   return (
     <div className="min-h-screen w-full p-3">
@@ -62,13 +69,26 @@ export default function ClientDetails() {
             </TabsList>
 
             <TabsContent value="personal-information">
-              <PersonalInformationTab />
+              <PersonalInformationTab
+                responses={data.responses}
+                user={data.user}
+              />
             </TabsContent>
             <TabsContent value="documents">
-              <DocumentsTab />
+              <DocumentsTab
+                documents={
+                  data.documents?.flatMap((doc) =>
+                    doc.file_paths.map((file) => ({
+                      name: `${file.file_type}.pdf`,
+                      size: "Unknown", // or use actual size if available
+                      url: file.file_url,
+                    }))
+                  ) ?? []
+                }
+              />
             </TabsContent>
             <TabsContent value="chat-transcript">
-              <ChatTranscriptTab />
+              <ChatTranscriptTab user_id={id as string} />
             </TabsContent>
             <TabsContent value="status-history">
               <StatusHistoryTab />

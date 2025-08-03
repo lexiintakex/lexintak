@@ -1,51 +1,47 @@
 import { FieldMeta } from "@/components/ui/add-input";
 import { Calendar, User, Phone, Mail, MapPin, Map } from "lucide-react";
 
-export const sections: { title: string; fields: FieldMeta[] }[] = [
+export const sections: {
+  title: string;
+  dependsOn?: { field: string; value: any };
+  fields: FieldMeta[];
+}[] = [
   {
-    title: "Client Management",
+    title: "Personal Information",
     fields: [
       {
-        id: "todayDate",
-        label: "Today's Date",
+        id: "dob",
+        label: "Date of Birth",
         type: "date",
         icon: Calendar,
+        required: true,
       },
       {
-        id: "currentFullName",
-        label: "Current Full Name",
-        placeholder: "Hafiz Ahmad Ismail",
+        id: "legal_name",
+        label: "Full Legal Name",
+        placeholder: "John Doe",
         type: "text",
         icon: User,
+        required: true,
       },
       {
-        id: "previousName",
-        label: "Names you have previous",
-        type: "text",
-        placeholder: "A. Ahmad",
-      },
-      {
-        id: "countryCode",
-        label: "Code",
-        placeholder: "+92",
-        type: "text",
-      },
-      {
-        id: "phoneNumber",
-        label: "Number",
-        placeholder: "3335558269",
+        id: "phone_number",
+        label: "Phone Number",
+        placeholder: "(555) 123-4567",
         type: "tel",
         icon: Phone,
+        required: true,
       },
       {
-        id: "email",
+        id: "email_address",
         label: "Email",
-        placeholder: "ahmadansari55@gmail.com",
+        placeholder: "johndoe@example.com",
         type: "email",
         icon: Mail,
+        required: true,
       },
       {
-        id: "maritalStatus",
+        id: "marital_status",
         label: "Marital Status",
         type: "select",
         options: [
@@ -54,66 +50,51 @@ export const sections: { title: string; fields: FieldMeta[] }[] = [
           { value: "divorced", label: "Divorced" },
           { value: "widowed", label: "Widowed" },
         ],
+        required: true,
       },
       {
-        id: "placeOfBirth",
-        label: "Place of Birth (City, State, Country)",
-        placeholder: "Alaska, USA",
+        id: "place_of_birth",
+        label: "Place of Birth",
+        placeholder: "New York, NY, USA",
         type: "text",
         icon: MapPin,
+        required: true,
       },
       {
-        id: "liveInUSA",
-        label: "Do you currently live in the USA?",
-        type: "toggle",
-      },
-      {
-        id: "currentAddress",
-        label: "Your Current Address",
-        placeholder: "Alaska, USA",
+        id: "current_address",
+        label: "Current Address",
+        placeholder: "123 Main St, New York, NY",
         type: "text",
         icon: Map,
-      },
-      {
-        id: "livedInUSA",
-        label: "Have you lived in the USA?",
-        type: "toggle",
+        required: true,
       },
       {
         id: "height",
         label: "Height (feet/inches)",
-        placeholder: "4.9",
+        placeholder: "5'8\"",
         type: "text",
-        subToggle: { leftLabel: "feet/inches", rightLabel: "cm" },
+        required: true,
       },
       {
         id: "weight",
         label: "Weight (lbs)",
-        placeholder: "75",
+        placeholder: "160",
         type: "text",
-        subToggle: { leftLabel: "lbs", rightLabel: "kg" },
+        required: true,
       },
       {
-        id: "hairColor",
+        id: "hair_color",
         label: "Hair Color",
-        type: "select",
-        options: [
-          { value: "black", label: "Black" },
-          { value: "brown", label: "Brown" },
-          { value: "blonde", label: "Blonde" },
-          { value: "other", label: "Other" },
-        ],
+        placeholder: "Brown",
+        type: "text",
+        required: true,
       },
       {
-        id: "eyeColor",
+        id: "eye_color",
         label: "Eye Color",
-        type: "select",
-        options: [
-          { value: "brown", label: "Brown" },
-          { value: "blue", label: "Blue" },
-          { value: "green", label: "Green" },
-          { value: "other", label: "Other" },
-        ],
+        placeholder: "Hazel",
+        type: "text",
+        required: true,
       },
     ],
   },
@@ -121,375 +102,239 @@ export const sections: { title: string; fields: FieldMeta[] }[] = [
     title: "Children Information",
     fields: [
       {
-        id: "hasChildren",
+        id: "children_info",
         label: "Do you have children?",
-        type: "checkbox",
+        type: "toggle",
+        required: true,
       },
       {
-        id: "childrenCount",
-        label: "How many children?",
-        placeholder: "01",
+        id: "number_of_children",
+        label: "Number of Children",
+        placeholder: "1",
         type: "select",
         options: Array.from({ length: 10 }, (_, i) => ({
           value: String(i + 1),
           label: String(i + 1),
         })),
+        required: true,
+        dependsOn: { field: "children_info", value: true },
       },
       {
-        id: "childName",
+        id: "child_name",
         label: "Child Name",
-        placeholder: "Liana Jones",
+        placeholder: "Emily Doe",
         type: "text",
         icon: User,
+        required: true,
+        dependsOn: { field: "children_info", value: true },
       },
       {
-        id: "childDob",
+        id: "child_dob",
         label: "Child DOB",
         type: "date",
         icon: Calendar,
+        required: true,
+        dependsOn: { field: "children_info", value: true },
       },
       {
-        id: "childBirthPlace",
-        label: "Place of Birth (child)",
-        placeholder: "Islamabad",
+        id: "child_birth_place",
+        label: "Child Birthplace",
+        placeholder: "Chicago, IL, USA",
         type: "text",
         icon: MapPin,
+        required: true,
+        dependsOn: { field: "children_info", value: true },
       },
       {
-        id: "childAddress",
-        label: "Child Address",
-        placeholder: "H # no 2 , Muhalla Eid Gah",
+        id: "child_city",
+        label: "Child City",
+        placeholder: "Chicago",
         type: "text",
-        bottomCheckbox: {
-          id: "sameAddress",
-          label: "Same as current address",
-        },
+        required: true,
+        dependsOn: { field: "children_info", value: true },
       },
       {
-        id: "childCity",
-        label: "City",
-        placeholder: "Islamabad",
-        type: "select",
-        options: [
-          { value: "islamabad", label: "Islamabad" },
-          { value: "lahore", label: "Lahore" },
-          { value: "karachi", label: "Karachi" },
-        ],
-      },
-      {
-        id: "childCountry",
-        label: "Country",
-        placeholder: "Pakistan",
-        type: "select",
-        options: [
-          { value: "pakistan", label: "Pakistan" },
-          { value: "usa", label: "USA" },
-        ],
+        id: "child_country",
+        label: "Child Country",
+        placeholder: "USA",
+        type: "text",
+        required: true,
+        dependsOn: { field: "children_info", value: true },
       },
     ],
   },
   {
     title: "Spouse Information",
+    dependsOn: { field: "marital_status", value: "married" },
     fields: [
       {
-        id: "spouseName",
+        id: "spouse_name",
         label: "Spouse Name",
-        placeholder: "Liana Jones",
+        placeholder: "Jane Doe",
         type: "text",
         icon: User,
+        required: true,
+        dependsOn: { field: "marital_status", value: "married" },
       },
       {
-        id: "spouseDob",
+        id: "spouse_dob",
         label: "Spouse DOB",
         type: "date",
         icon: Calendar,
+        required: true,
+        dependsOn: { field: "marital_status", value: "married" },
       },
       {
-        id: "spouseBirthPlace",
-        label: "Place of Birth (spouse)",
-        placeholder: "Islamabad",
-        type: "text",
-        icon: MapPin,
-      },
-      {
-        id: "spouseMarriageDate",
+        id: "date_of_marriage",
         label: "Date of Marriage",
         type: "date",
         icon: Calendar,
+        required: true,
+        dependsOn: { field: "marital_status", value: "married" },
       },
       {
-        id: "spouseAddress",
+        id: "spouse_birth_place",
+        label: "Spouse Place of Birth",
+        placeholder: "Los Angeles, CA, USA",
+        type: "text",
+        icon: MapPin,
+        required: true,
+        dependsOn: { field: "marital_status", value: "married" },
+      },
+      {
+        id: "spouse_city",
+        label: "Spouse City",
+        placeholder: "Los Angeles",
+        type: "text",
+        required: true,
+        dependsOn: { field: "marital_status", value: "married" },
+      },
+      {
+        id: "spouse_state",
+        label: "Spouse State",
+        placeholder: "California",
+        type: "text",
+        required: true,
+        dependsOn: { field: "marital_status", value: "married" },
+      },
+      {
+        id: "spouse_country",
+        label: "Spouse Country",
+        placeholder: "USA",
+        type: "text", // or "select" if you want dropdown options
+        required: true,
+        dependsOn: { field: "marital_status", value: "married" },
+      },
+      {
+        id: "spouse_address",
         label: "Spouse Address",
-        placeholder: "H # no 2 , Muhalla Eid Gah",
+        placeholder: "123 Main St, New York, NY",
         type: "text",
-        bottomCheckbox: {
-          id: "sameAddress",
-          label: "Same as current address",
-        },
-      },
-      {
-        id: "spouseCity",
-        label: "City",
-        placeholder: "Islamabad",
-        type: "select",
-        options: [
-          { value: "islamabad", label: "Islamabad" },
-          { value: "lahore", label: "Lahore" },
-        ],
-      },
-      {
-        id: "spouseState",
-        label: "State",
-        placeholder: "Islamabad",
-        type: "select",
-        options: [
-          { value: "pakistan", label: "Pakistan" },
-          { value: "usa", label: "USA" },
-        ],
-      },
-      {
-        id: "spouseCountry",
-        label: "Country",
-        placeholder: "Pakistan",
-        type: "select",
-        options: [
-          { value: "pakistan", label: "Pakistan" },
-          { value: "usa", label: "USA" },
-        ],
+        required: true,
+        dependsOn: { field: "marital_status", value: "married" },
       },
     ],
   },
   {
-    title: "Parents Information (Father)",
+    title: "Father Information",
     fields: [
       {
-        id: "fatherName",
-        label: "Father Name",
-        placeholder: "Lee Jones",
+        id: "father_name",
+        label: "Father's Name",
+        placeholder: "John Doe Sr.",
         type: "text",
-        icon: User,
+        required: true,
       },
       {
-        id: "fatherDob",
-        label: "Father DOB",
+        id: "father_dob",
+        label: "Father's DOB",
         type: "date",
         icon: Calendar,
+        required: true,
       },
       {
-        id: "fatherBirthPlace",
-        label: "Place of Birth (father)",
-        placeholder: "Islamabad",
+        id: "father_place_of_birth",
+        label: "Father's Place of Birth",
+        placeholder: "Boston, MA, USA",
         type: "text",
         icon: MapPin,
+        required: true,
       },
       {
-        id: "fatherMarriageDate",
-        label: "Date of Marriage",
+        id: "parent_marriage_date",
+        label: "Date of Marriage (Father & Mother)",
         type: "date",
         icon: Calendar,
+        required: true,
       },
       {
-        id: "fatherAddress",
-        label: "Father Address",
-        placeholder: "H # no 2 , Muhalla Eid Gah",
+        id: "father_address",
+        label: "Father's Address",
+        placeholder: "456 Oak St, Boston, MA",
         type: "text",
-        bottomCheckbox: {
-          id: "sameAddress",
-          label: "Same as current address",
-        },
+        required: true,
       },
       {
-        id: "fatherCity",
-        label: "City",
-        placeholder: "Islamabad",
-        type: "select",
-        options: [
-          { value: "islamabad", label: "Islamabad" },
-          { value: "lahore", label: "Lahore" },
-        ],
+        id: "father_city",
+        label: "Father's City",
+        placeholder: "Boston",
+        type: "text",
+        required: true,
       },
       {
-        id: "fatherCountry",
-        label: "Country",
-        placeholder: "Pakistan",
-        type: "select",
-        options: [
-          { value: "pakistan", label: "Pakistan" },
-          { value: "usa", label: "USA" },
-        ],
+        id: "father_country",
+        label: "Father's Country",
+        placeholder: "USA",
+        type: "text", // or "select"
+        required: true,
       },
     ],
   },
   {
-    title: "Parents Information (Mother)",
+    title: "Mother Information",
     fields: [
       {
-        id: "motherName",
-        label: "Mother Name",
-        placeholder: "Liana Jones",
+        id: "mother_name",
+        label: "Mother's Name",
+        placeholder: "Jane Doe Sr.",
         type: "text",
-        icon: User,
+        required: true,
       },
       {
-        id: "motherDob",
-        label: "Mother DOB",
+        id: "mother_dob",
+        label: "Mother's DOB",
         type: "date",
         icon: Calendar,
+        required: true,
       },
       {
-        id: "motherBirthPlace",
-        label: "Place of Birth (mother)",
-        placeholder: "Islamabad",
+        id: "mother_place_of_birth",
+        label: "Mother's Place of Birth",
+        placeholder: "Chicago, IL, USA",
         type: "text",
         icon: MapPin,
+        required: true,
       },
       {
-        id: "motherMarriageDate",
-        label: "Date of Marriage",
-        type: "date",
-        icon: Calendar,
-      },
-      {
-        id: "motherAddress",
-        label: "Mother Address",
-        placeholder: "H # no 2 , Muhalla Eid Gah",
+        id: "mother_address",
+        label: "Mother's Address",
+        placeholder: "456 Oak St, Chicago, IL",
         type: "text",
-        bottomCheckbox: {
-          id: "sameAddress",
-          label: "Same as current address",
-        },
+        required: true,
       },
       {
-        id: "motherCity",
-        label: "Mother City",
-        placeholder: "Islamabad",
-        type: "select",
-        options: [
-          { value: "islamabad", label: "Islamabad" },
-          { value: "lahore", label: "Lahore" },
-        ],
-      },
-      {
-        id: "motherCountry",
-        label: "Country",
-        placeholder: "Pakistan",
-        type: "select",
-        options: [
-          { value: "pakistan", label: "Pakistan" },
-          { value: "usa", label: "USA" },
-        ],
-      },
-    ],
-  },
-  {
-    title: "Address 1 (Show Address History Timeline)",
-    fields: [
-      {
-        id: "address1YearsSame",
-        label: "I have lived at the same address for 5+ years.",
-        type: "checkbox",
-      },
-      {
-        id: "address1Street",
-        label: "Address Line",
-        placeholder: "H # no 22, street 01, Main Avenue",
+        id: "mother_city",
+        label: "Mother's City",
+        placeholder: "Chicago",
         type: "text",
-        icon: Map,
+        required: true,
       },
       {
-        id: "address1State",
-        label: "State",
-        placeholder: "Alaska",
-        type: "select",
-        options: [
-          { value: "alaska", label: "Alaska" },
-          { value: "california", label: "California" },
-        ],
-      },
-      {
-        id: "address1Country",
-        label: "Country",
-        placeholder: "Alaska",
-        type: "select",
-        options: [
-          { value: "usa", label: "USA" },
-          { value: "pakistan", label: "Pakistan" },
-        ],
-      },
-      {
-        id: "address1Postal",
-        label: "Postal Code",
-        placeholder: "95000",
-        type: "text",
-      },
-    ],
-  },
-  {
-    title: "Address 2 (Show Address History Timeline)",
-    fields: [
-      {
-        id: "address2Street",
-        label: "Address Line",
-        placeholder: "H # no 22, street 01, Main Avenue",
-        type: "text",
-        icon: Map,
-      },
-      {
-        id: "address2State",
-        label: "State",
-        placeholder: "Alaska",
-        type: "select",
-        options: [
-          { value: "alaska", label: "Alaska" },
-          { value: "california", label: "California" },
-        ],
-      },
-      {
-        id: "address2Country",
-        label: "Country",
-        placeholder: "Pakistan",
-        type: "select",
-        options: [
-          { value: "pakistan", label: "Pakistan" },
-          { value: "usa", label: "USA" },
-        ],
-      },
-      {
-        id: "address2MoveDate",
-        label: "Move‑out Date",
-        type: "date",
-        icon: Calendar,
-      },
-    ],
-  },
-  {
-    title: "US presence questions",
-    fields: [
-      {
-        id: "usPresenceBefore",
-        label: "Have you lived in the USA before?",
-        type: "toggle",
-      },
-      {
-        id: "usEntryMethod",
-        label: "How did you last enter in the USA?",
-        type: "select",
-        options: [
-          { value: "visa", label: "With Visa" },
-          { value: "passport", label: "With Passport" },
-        ],
-      },
-      {
-        id: "usEntryPort",
-        label: "Last port of entry?",
-        placeholder: "Alaska",
-        type: "text",
-      },
-      {
-        id: "usExitDate",
-        label: "Date of last entry?",
-        type: "date",
-        icon: Calendar,
+        id: "mother_country",
+        label: "Mother's Country",
+        placeholder: "USA",
+        type: "text", // or "select"
+        required: true,
       },
     ],
   },
@@ -497,43 +342,34 @@ export const sections: { title: string; fields: FieldMeta[] }[] = [
     title: "Immigration Applications",
     fields: [
       {
-        id: "submittedBefore",
-        label: "Have you submitted immigration applications before?",
-        type: "toggle",
+        id: "immigration_application",
+        label: "Have you previously filed any immigration application?",
+        type: "toggle", // Yes / No switch
+        required: true,
       },
       {
-        id: "applicationType",
-        label: "Type of application?",
-        type: "select",
-        options: [
-          { value: "work", label: "Work Visa" },
-          { value: "study", label: "Study Visa" },
-        ],
+        id: "application_type",
+        label: "Type of Application",
+        placeholder: "e.g., Asylum, Green Card, Visa",
+        type: "text",
+        required: true,
+        dependsOn: { field: "immigration_application", value: true },
       },
       {
-        id: "applicationResult",
-        label: "Result?",
-        type: "select",
-        options: [
-          { value: "successful", label: "Successful" },
-          { value: "rejected", label: "Rejected" },
-        ],
+        id: "application_result",
+        label: "Result of Application",
+        placeholder: "Approved, Denied, Pending",
+        type: "text",
+        required: true,
+        dependsOn: { field: "immigration_application", value: true },
       },
       {
-        id: "applicationDate",
-        label: "Date?",
+        id: "application_date",
+        label: "Date of Application",
         type: "date",
         icon: Calendar,
-      },
-    ],
-  },
-  {
-    title: "Work Authorization",
-    fields: [
-      {
-        id: "hadWorkPermit",
-        label: "Have you had work permits in the USA?",
-        type: "toggle",
+        required: true,
+        dependsOn: { field: "immigration_application", value: true },
       },
     ],
   },
@@ -541,23 +377,96 @@ export const sections: { title: string; fields: FieldMeta[] }[] = [
     title: "Legal History",
     fields: [
       {
-        id: "arrestedBefore",
+        id: "arrest_history",
         label: "Have you been arrested before?",
         type: "toggle",
+        required: true,
+      },
+      {
+        id: "arrest_reason",
+        label: "Reason for Arrest",
+        placeholder: "Describe the reason",
+        type: "text",
+        required: true,
+        dependsOn: { field: "arrest_history", value: true },
+      },
+      {
+        id: "arrest_date",
+        label: "Date of Arrest",
+        type: "date",
+        icon: Calendar,
+        required: true,
+        dependsOn: { field: "arrest_history", value: true },
+      },
+      {
+        id: "arrest_location",
+        label: "Location of Arrest",
+        placeholder: "City, State, Country",
+        type: "text",
+        required: true,
+        dependsOn: { field: "arrest_history", value: true },
+      },
+      {
+        id: "arrest_outcome",
+        label: "Outcome",
+        placeholder: "e.g., Charges Dropped, Convicted, Released",
+        type: "text",
+        required: true,
+        dependsOn: { field: "arrest_history", value: true },
+      },
+    ],
+  },
+  {
+    title: "Work Authorization",
+    fields: [
+      {
+        id: "work_permit",
+        label: "Have you had a work permit in the USA?",
+        type: "toggle",
+        required: false,
+      },
+      {
+        id: "work_permit_type",
+        label: "Type of Work Permit",
+        placeholder: "e.g., H1B, OPT, EAD",
+        type: "text",
+        required: true,
+        dependsOn: { field: "work_permit", value: true },
+      },
+      {
+        id: "work_permit_issue_date",
+        label: "Date Issued",
+        type: "date",
+        icon: Calendar,
+        required: true,
+        dependsOn: { field: "work_permit", value: true },
+      },
+      {
+        id: "work_permit_expiry_date",
+        label: "Expiration Date",
+        type: "date",
+        icon: Calendar,
+        required: true,
+        dependsOn: { field: "work_permit", value: true },
+      },
+      {
+        id: "illegal_work_usa",
+        label: "Have you ever worked illegally in the USA?",
+        type: "toggle",
+        required: true,
+        dependsOn: { field: "work_permit", value: true },
       },
     ],
   },
 ];
 
-// src/constants/fieldMappings.ts
-
 export const fieldMappings: Record<string, Record<string, string>> = {
   passport: {
-    name: "currentFullName",
+    name: "legal_name",
     passport_number: "passportNumber",
     country_of_issue: "passportIssuingCountry",
     date_of_birth: "todayDate",
-    place_of_birth: "placeOfBirth",
+    place_of_birth: "place_of_birth",
     gender: "gender",
     issue_date: "passportIssueDate",
     expiration_date: "passportExpiryDate",
@@ -565,80 +474,80 @@ export const fieldMappings: Record<string, Record<string, string>> = {
   },
 
   birth_certificate: {
-    full_name: "currentFullName",
+    full_name: "legal_name",
     date_of_birth: "todayDate",
-    place_of_birth: "placeOfBirth",
-    father_name: "fatherName",
-    mother_name: "motherName",
+    place_of_birth: "place_of_birth",
+    father_name: "father_name",
+    mother_name: "mother_name",
     certificate_number: "birthCertificateNumber",
     issuing_authority: "birthIssuingAuthority",
   },
 
   marriage_certificate: {
-    spouse_1_name: "spouseName", // if different spouses needed, change to spouse1Name
-    spouse_2_name: "spouseAltName", // optional: add new field if needed
-    marriage_date: "spouseMarriageDate",
-    marriage_location: "spouseAddress", // or create a new "marriageLocation"
+    spouse_1_name: "spouse_name",
+    spouse_2_name: "spouseAltName", // optional
+    marriage_date: "date_of_marriage",
+    marriage_location: "spouse_address", // or create "marriageLocation" if different
     certificate_number: "marriageCertificateNumber",
-    officiant_name: "officiantName", // add field in form if missing
-    issuing_authority: "marriageIssuingAuthority", // add field in form if missing
+    officiant_name: "officiantName", // optional: add to your form
+    issuing_authority: "marriageIssuingAuthority", // optional: add to your form
   },
 
   divorce_decree: {
-    party_1_name: "spouseName",
+    party_1_name: "spouse_name",
     party_2_name: "spouseAltName",
-    divorce_date: "divorceDate", // add in your form
-    court_name: "courtName", // add in your form
-    case_number: "divorceCaseNumber", // add in your form
+    divorce_date: "divorceDate", // optional: add to your form
+    court_name: "courtName", // optional: add to your form
+    case_number: "divorceCaseNumber", // optional: add to your form
   },
 
   green_card: {
-    name: "currentFullName",
-    uscis_a_number: "uscisNumber", // add in your form
-    card_number: "greenCardNumber", // add in your form
+    name: "legal_name",
+    uscis_a_number: "uscisNumber", // optional: add to your form
+    card_number: "greenCardNumber", // optional: add to your form
     date_of_birth: "todayDate",
-    issue_date: "greenCardIssueDate", // add in your form
-    expiration_date: "greenCardExpiryDate", // add in your form
+    issue_date: "greenCardIssueDate", // optional
+    expiration_date: "greenCardExpiryDate", // optional
   },
 
   drivers_license: {
-    name: "currentFullName",
-    license_number: "licenseNumber", // add in your form
+    name: "legal_name",
+    license_number: "licenseNumber", // optional
     date_of_birth: "todayDate",
-    address: "currentAddress",
-    issue_date: "licenseIssueDate", // add in your form
-    expiration_date: "licenseExpiryDate", // add in your form
-    state: "licenseIssuingState", // add in your form
+    address: "current_address",
+    issue_date: "licenseIssueDate", // optional
+    expiration_date: "licenseExpiryDate", // optional
+    state: "licenseIssuingState", // optional
   },
 
   social_security_card: {
-    name: "currentFullName",
-    social_security_number: "socialSecurityNumber", // add in your form
+    name: "legal_name",
+    social_security_number: "socialSecurityNumber", // optional
   },
 
   tax_return: {
-    name: "currentFullName",
-    ssn: "socialSecurityNumber",
-    tax_year: "taxYear", // add in your form
-    income_amount: "incomeAmount", // add in your form
-    filing_status: "filingStatus", // add in your form
-    employer_name: "employerName", // add in your form
+    name: "legal_name",
+    ssn: "socialSecurityNumber", // optional
+    tax_year: "taxYear", // optional
+    income_amount: "incomeAmount", // optional
+    filing_status: "filingStatus", // optional
+    employer_name: "employerName", // optional
   },
 
   medical_exam: {
-    name: "currentFullName",
+    name: "legal_name",
     date_of_birth: "todayDate",
-    exam_date: "medicalExamDate", // add in your form
-    civil_surgeon_name: "civilSurgeonName", // add in your form
-    vaccination_status: "vaccinationStatus", // add in your form
+    exam_date: "medicalExamDate", // optional
+    civil_surgeon_name: "civilSurgeonName", // optional
+    vaccination_status: "vaccinationStatus", // optional
   },
 
   police_clearance: {
-    name: "currentFullName",
+    name: "legal_name",
     date_of_birth: "todayDate",
-    country_or_jurisdiction: "clearanceCountry", // add in your form
-    certificate_number: "clearanceCertificateNumber", // add in your form
-    issue_date: "clearanceIssueDate", // add in your form
-    criminal_record_status: "criminalRecordStatus", // add in your form
+    country_or_jurisdiction: "clearanceCountry", // optional
+    certificate_number: "clearanceCertificateNumber", // optional
+    issue_date: "clearanceIssueDate", // optional
+    criminal_record_status: "criminalRecordStatus", // optional
   },
 };
