@@ -20,26 +20,37 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useEffect } from "react";
 
-export default function TiptapEditor() {
+export default function TiptapEditor({
+  onChange,
+}: {
+  onChange?: (value: string) => void;
+}) {
   const editor = useEditor({
     extensions: [StarterKit],
-    content: "<p>Lorem ipsum dolor sit amet...</p>",
+    immediatelyRender: false,
+    content: "<p></p>",
     editorProps: {
       attributes: {
         class:
           "prose max-w-none min-h-[150px] rounded-md border p-4 focus:outline-none bg-white text-sm",
       },
     },
-    immediatelyRender: false,
+    onUpdate: ({ editor }) => {
+      onChange?.(editor.getHTML());
+    },
   });
+
+  useEffect(() => {
+    return () => editor?.destroy();
+  }, [editor]);
 
   if (!editor) return null;
 
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center gap-2 border-b pb-3">
-        {/* Font family */}
         <Select>
           <SelectTrigger className="h-8 w-[120px]">
             <SelectValue placeholder="Poppins" />
@@ -51,22 +62,20 @@ export default function TiptapEditor() {
           </SelectContent>
         </Select>
 
-        {/* Font size */}
         <Select>
           <SelectTrigger className="h-8 w-[80px]">
             <SelectValue placeholder="10 pt" />
           </SelectTrigger>
           <SelectContent>
             {[10, 12, 14, 16, 18, 20].map((size) => (
-              <SelectItem
-                key={size}
-                value={size.toString()}
-              >{`${size} pt`}</SelectItem>
+              <SelectItem key={size} value={size.toString()}>
+                {size} pt
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
 
-        {/* Formatting Buttons */}
+        {/* Formatting buttons */}
         <Button
           type="button"
           variant={editor.isActive("bold") ? "default" : "ghost"}
@@ -75,7 +84,6 @@ export default function TiptapEditor() {
         >
           <Bold className="h-4 w-4" />
         </Button>
-
         <Button
           type="button"
           variant={editor.isActive("italic") ? "default" : "ghost"}
@@ -84,7 +92,6 @@ export default function TiptapEditor() {
         >
           <Italic className="h-4 w-4" />
         </Button>
-
         <Button
           type="button"
           variant={editor.isActive("strike") ? "default" : "ghost"}
@@ -93,7 +100,6 @@ export default function TiptapEditor() {
         >
           <Strikethrough className="h-4 w-4" />
         </Button>
-
         <Button
           type="button"
           variant={editor.isActive("code") ? "default" : "ghost"}
@@ -102,7 +108,6 @@ export default function TiptapEditor() {
         >
           <Code className="h-4 w-4" />
         </Button>
-
         <Button
           type="button"
           variant="ghost"
@@ -111,7 +116,6 @@ export default function TiptapEditor() {
         >
           <List className="h-4 w-4" />
         </Button>
-
         <Button
           type="button"
           variant="ghost"
@@ -120,7 +124,6 @@ export default function TiptapEditor() {
         >
           <ListOrdered className="h-4 w-4" />
         </Button>
-
         <Button
           type="button"
           variant="ghost"
@@ -130,7 +133,6 @@ export default function TiptapEditor() {
         >
           <Undo className="h-4 w-4" />
         </Button>
-
         <Button
           type="button"
           variant="ghost"

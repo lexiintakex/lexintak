@@ -3,31 +3,65 @@
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
+import axiosInstance from "@/lib/axios";
+import useAuth from "@/hooks/useAuth";
+import { useParams } from "next/navigation";
 
 const TiptapEditor = dynamic(() => import("./TipEditor"), { ssr: false });
 
-export function AddNotes() {
+export function AddNotes({ type }: { type: string }) {
   const [hydrated, setHydrated] = useState(false);
+  const { user } = useAuth();
+  const created_by = user?.user_id ?? "";
+  const { id } = useParams();
+  const [note, setNote] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     setHydrated(true);
   }, []);
 
+  const handleSubmit = async () => {
+    if (!note) return;
+
+    setIsSubmitting(true);
+
+    try {
+      const res = await axiosInstance.post("/comments", {
+        user_id: id,
+        created_by: created_by,
+        comment: note,
+        type: type,
+        role: user?.role,
+      });
+
+      setNote("");
+    } catch (err) {
+      console.error("Error while submitting comment:", err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
-    <div className="space-y-4 border border-gray-100  shadow">
-      <p className="font-semibold px-4  rounded-md bg-[#F4F9FF] py-[15px]  text-xl text-gray-primary">
+    <div className="space-y-4 border border-gray-100 shadow">
+      <p className="font-semibold px-4 rounded-md bg-[#F4F9FF] py-[15px] text-xl text-gray-primary">
         Add Notes
       </p>
       <Card className="p-4">
         {hydrated ? (
-          <TiptapEditor />
+          <TiptapEditor onChange={setNote} />
         ) : (
           <p className="text-muted-foreground text-sm">Loading editor...</p>
         )}
       </Card>
       <div className="px-[20px] mb-[10px]">
-        <button className=" px-[25px] rounded-md py-[10px] bg-[#EFEFEF] font-medium text-base text-[#686868]">
-          Add
+        <button
+          onClick={handleSubmit}
+          disabled={isSubmitting}
+          className="px-[25px] rounded-md py-[10px] bg-blue-primary font-medium text-base text-[#fff] cursor-pointer hover:bg-transparent hover:text-blue-primary border border-blue-primary transition-colors hover:border-blue-primary disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isSubmitting ? "Submitting..." : "Add"}
         </button>
       </div>
     </div>

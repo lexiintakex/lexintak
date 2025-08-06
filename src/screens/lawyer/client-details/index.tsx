@@ -98,7 +98,6 @@ export default function ClientDetails() {
           {["personal-information", "documents"].includes(activeTab) && (
             <div className="space-y-6">
               <ApplicationManagement />
-              <AddNotes />
 
               {activeTab === "personal-information" && (
                 <div className="md:col-span-2 flex justify-start mt-4">

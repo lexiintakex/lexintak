@@ -5,6 +5,8 @@ import { CheckCircle } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { fieldIconMap, fieldLabelMap } from "../field-maping";
 import { User } from "@/types/auth";
+import { AddNotes } from "../add-notes";
+import CommentsList from "../CommentList";
 
 interface Props {
   responses: { key_name: string; key_value: string; language: string }[];
@@ -51,6 +53,8 @@ export function PersonalInformationTab({ responses, user }: Props) {
           );
         })}
       </div>
+      <AddNotes type="personal_information" />
+      {/* <CommentsList userId={user.user_id as any} type="personal_information" /> */}
     </div>
   );
 }

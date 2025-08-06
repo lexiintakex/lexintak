@@ -16,7 +16,7 @@ function AddClient() {
   const { push } = useRouter();
   const lawyerId = user?.user_id ?? "";
 
-  const {refetch} = useClientStatusTable()
+  const { refetch } = useClientStatusTable();
 
   const fields: FieldMeta[] = [
     {
@@ -68,22 +68,21 @@ function AddClient() {
 
   type ClientFormValues = z.infer<typeof clientSchema>;
 
- const {
-  control,
-  handleSubmit,
-  formState: { isSubmitting, errors },
-} = useForm<ClientFormValues>({
-  resolver: zodResolver(clientSchema),
-  defaultValues: {
-    full_name: "",
-    email: "",
-    phone: "",
-    form_type: "",
-    username: "",
-    password: "",
-  },
-});
-
+  const {
+    control,
+    handleSubmit,
+    formState: { isSubmitting, errors },
+  } = useForm<ClientFormValues>({
+    resolver: zodResolver(clientSchema),
+    defaultValues: {
+      full_name: "",
+      email: "",
+      phone: "",
+      form_type: "",
+      username: "",
+      password: "",
+    },
+  });
 
   const { mutateAsync: registerClient, isPending } = useRegisterClient(
     () => console.log("Client registered!"),
@@ -97,7 +96,7 @@ function AddClient() {
         created_by: lawyerId,
       });
       push("/lawyer/client-management");
-      refetch()
+      refetch();
     } catch (error) {
       console.error("error", error);
     }
@@ -120,7 +119,7 @@ function AddClient() {
               render={({ field, fieldState: { error } }) => (
                 <InputField
                   {...f}
-                   value={field.value ?? ""} 
+                  value={field.value ?? ""}
                   onChange={field.onChange}
                   error={error?.message}
                 />

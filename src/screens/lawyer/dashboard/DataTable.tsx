@@ -18,6 +18,7 @@ import ExportDropdown from "@/components/ui/ExportDropDown";
 import { useRouter } from "next/navigation";
 import FiltersModal from "../client-management/Filters";
 import CaseNotesModal from "@/components/ui/note-case-modal";
+import axiosInstance from "@/lib/axios";
 
 function StatusBadge({ status }: { status: TableData["status"] }) {
   const colors = {
@@ -42,6 +43,8 @@ export default function DataTable({ tableData }: { tableData: TableData[] }) {
   const [isFilterOpen, setIsFilterOpen] = React.useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [noteRow, setNoteRow] = useState<TableData | null>(null);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<string | null>(null);
 
   const openNoteModal = (row: TableData) => {
     setNoteRow(row);
@@ -62,6 +65,16 @@ export default function DataTable({ tableData }: { tableData: TableData[] }) {
     const start = (page - 1) * rowsPerPage;
     return rows.slice(start, start + rowsPerPage);
   }, [page, rowsPerPage, rows]);
+
+  const handleDelete = async (userId: string) => {
+    try {
+      await axiosInstance.delete(`/users/${userId}`);
+
+      setRows((prev) => prev.filter((r) => r.userId !== userId));
+    } catch (error) {
+      console.error("Error deleting user:", error);
+    }
+  };
 
   React.useEffect(() => setPage(1), [rowsPerPage]);
 
@@ -191,12 +204,51 @@ export default function DataTable({ tableData }: { tableData: TableData[] }) {
                       <Edit className="h-4 w-4" />
                     </Button>
                     <Button
+                      onClick={() => {
+                        setUserToDelete(row.userId);
+                        setConfirmDeleteOpen(true);
+                      }}
                       variant="ghost"
                       size="icon"
                       className="text-red-600 cursor-pointer hover:bg-red-100"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
+                    {confirmDeleteOpen && (
+                      <div className="fixed inset-0 bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
+                        <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-lg">
+                          <h2 className="text-lg font-semibold mb-4">
+                            Confirm Deletion
+                          </h2>
+                          <p className="mb-6 text-sm text-gray-600">
+                            Are you sure you want to delete this user? <br />
+                            This action cannot be undone.
+                          </p>
+                          <div className="flex justify-end gap-3">
+                            <Button
+                              className="cursor-pointer"
+                              variant="outline"
+                              onClick={() => {
+                                setConfirmDeleteOpen(false);
+                                setUserToDelete(null);
+                              }}
+                            >
+                              Cancel
+                            </Button>
+                            <Button
+                              className="bg-red-600 text-white hover:bg-red-700 cursor-pointer"
+                              variant="destructive"
+                              onClick={() => {
+                                if (userToDelete) handleDelete(userToDelete);
+                                setConfirmDeleteOpen(false);
+                              }}
+                            >
+                              Delete
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </td>
               </tr>
