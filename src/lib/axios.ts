@@ -2,8 +2,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 const axiosInstance = axios.create({
-  // baseURL: "http://localhost:5000/api",
-  baseURL: "https://lexiintake.com/api/api/",
+  baseURL: process.env.NEXT_PUBLIC_BACKEND_URL,
 });
 
 axiosInstance.interceptors.request.use(

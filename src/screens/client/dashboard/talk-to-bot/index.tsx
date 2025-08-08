@@ -58,51 +58,33 @@ export default function VoiceAssistantScreen() {
     });
   }, []);
 
-  // const handleStartRecording = async () => {
-  //   if (!vapi) return;
-  //   await vapi.start(null, { maxDurationSeconds: 1800 }, null, workflowId);
-  //   setIsRecording(true);
-  // };
+  const handleCreateSession = async () => {
+    if (!workflowId) return;
 
-  // const handleStartRecording = async () => {
-  //   if (!vapi || !user || !workflowId) return;
-
-  //   try {
-  //     // const response = await axiosInstance.post("/session", {
-  //     //   language: globalLanguage,
-  //     //   form_type: user.form_type,
-  //     // });
-
-  //     // const session_id = response.data.session_id;
-
-  //     await vapi.sta(null, { maxDurationSeconds: 1800 }, null, workflowId);
-
-  //     setIsRecording(true);
-  //   } catch (err) {
-  //     console.error("Failed to create session or start Vapi:", err);
-  //   }
-  // };
+    try {
+      const response = await axiosInstance.post("/assistant/session", {
+        workflowId: workflowId,
+        language: globalLanguage,
+        form_type: user?.form_type,
+      });
+      return response.data.sessionId;
+    } catch (error) {
+      console.error("Error creating session:", error);
+    }
+  };
 
   const handleStartRecording = async () => {
     if (!vapi || !user || !workflowId) return;
 
     try {
-      // const response = await axiosInstance.post("/session", {
-      //   language: globalLanguage,
-      //   form_type: user.form_type,
-      // });
-
-      // const session_id = response.data.session_id;
-
-      // await vapi.start(
-      //   { sessionId: session_id }, // ✅ Top-level sessionId
-      //   { maxDurationSeconds: 1800 }, // ✅ Duration
-      //   null, // ✅ No squad
-      //   workflowId // ✅ Workflow ID
-      // );
-      await vapi.start(null, { maxDurationSeconds: 1800 }, null, workflowId);
-
-      // setSessionId(session_id);
+      const sessionId = await handleCreateSession();
+      console.log("Session ID:", sessionId);
+      await vapi.start(
+        null,
+        { maxDurationSeconds: 1800, metadata: { sessionId } },
+        null,
+        workflowId
+      );
       setIsRecording(true);
     } catch (err) {
       console.error("Failed to create session or start Vapi:", err);
