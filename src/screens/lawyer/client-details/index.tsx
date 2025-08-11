@@ -76,6 +76,7 @@ export default function ClientDetails() {
             </TabsContent>
             <TabsContent value="documents">
               <DocumentsTab
+                user={data.user}
                 documents={
                   data.documents?.flatMap((doc) =>
                     doc.file_paths.map((file) => ({

@@ -6,11 +6,14 @@ import { Card } from "@/components/ui/card";
 import axiosInstance from "@/lib/axios";
 import useAuth from "@/hooks/useAuth";
 import { useParams } from "next/navigation";
+import { useCreateComment } from "@/api/comments";
+import { toast } from "react-toastify";
 
 const TiptapEditor = dynamic(() => import("./TipEditor"), { ssr: false });
 
 export function AddNotes({ type }: { type: string }) {
   const [hydrated, setHydrated] = useState(false);
+  const { mutateAsync: createComment } = useCreateComment();
   const { user } = useAuth();
   const created_by = user?.user_id ?? "";
   const { id } = useParams();
@@ -22,15 +25,18 @@ export function AddNotes({ type }: { type: string }) {
   }, []);
 
   const handleSubmit = async () => {
-    if (!note) return;
+    const plainText = note.replace(/<[^>]+>/g, "").trim();
 
+    if (!plainText) {
+      toast.warn("Cannot submit empty comment");
+      return;
+    }
     setIsSubmitting(true);
-
     try {
-      const res = await axiosInstance.post("/comments", {
-        user_id: id,
+      await createComment({
+        user_id: id as string,
         created_by: created_by,
-        comment: note,
+        comment: note.trim(),
         type: type,
         role: user?.role,
       });
@@ -39,6 +45,7 @@ export function AddNotes({ type }: { type: string }) {
     } catch (err) {
       console.error("Error while submitting comment:", err);
     } finally {
+      setNote("");
       setIsSubmitting(false);
     }
   };
@@ -50,7 +57,7 @@ export function AddNotes({ type }: { type: string }) {
       </p>
       <Card className="p-4">
         {hydrated ? (
-          <TiptapEditor onChange={setNote} />
+          <TiptapEditor value={note} onChange={setNote} />
         ) : (
           <p className="text-muted-foreground text-sm">Loading editor...</p>
         )}

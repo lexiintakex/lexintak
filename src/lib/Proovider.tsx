@@ -4,6 +4,7 @@ import React, { ReactNode } from "react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import Translate from "./Translate";
 
 function Provider({ children }: { children: ReactNode }) {
   const queryClient = new QueryClient();
@@ -23,6 +24,8 @@ function Provider({ children }: { children: ReactNode }) {
           pauseOnHover
           theme="light"
         />
+        <Translate />
+
         {children}
       </AuthProvider>
     </QueryClientProvider>

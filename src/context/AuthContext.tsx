@@ -8,7 +8,7 @@ import {
   useMemo,
   ReactNode,
 } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import api from "@/lib/axios";
 import { AuthContextType, SignupData, User } from "@/types/auth";
 
@@ -22,6 +22,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string>("");
   const path = usePathname();
+  const { push } = useRouter();
   const [globalLanguage, setGlobalLanguage] = useState<"English" | "Spanish">(
     "English"
   );
@@ -34,19 +35,35 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       api.defaults.headers.common["Authorization"] = `Bearer ${storedToken}`;
     }
   }, []);
-
   const login = useCallback(
     async ({ email, password }: { email: string; password: string }) => {
       if (!isBrowser()) return;
-      const response = await api.post("/login", { email, password });
-      const { user, token } = response.data;
-      setUser(user);
-      setToken(token);
-      localStorage.setItem("token", token);
-      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-      return response.data;
+      try {
+        setUser(null);
+        setToken("");
+        localStorage.removeItem("token");
+        delete api.defaults.headers.common["Authorization"];
+
+        const response = await api.post("/login", { email, password });
+        const { user, token } = response.data;
+        if (user.role === "client") {
+          push("/client/dashboard");
+        } else if (user.role === "lawyer") {
+          push("/lawyer/dashboard");
+        }
+        setUser(user);
+        setToken(token);
+        localStorage.setItem("token", token);
+        api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+        return response.data;
+      } catch (error) {
+        console.error("Login failed", error);
+        throw error;
+      }
+      // Clear old user and token before attempting new login
     },
-    []
+    [push]
   );
 
   const signup = useCallback(async (data: SignupData) => {

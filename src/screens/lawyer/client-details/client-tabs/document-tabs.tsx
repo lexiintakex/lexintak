@@ -4,11 +4,15 @@ import { FileText, Eye, Pencil, Trash2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AddNotes } from "../add-notes";
+import { User } from "@/types/auth";
+import CommentsList from "../CommentList";
 
 export function DocumentsTab({
   documents,
+  user,
 }: {
   documents: { name: string; size: string; url: string }[];
+  user: User;
 }) {
   const handleAction = (action: string, doc: any) => {
     if (action === "view") {
@@ -55,6 +59,7 @@ export function DocumentsTab({
       </div>
       <div className="mt-6">
         <AddNotes type="documents" />
+        <CommentsList userId={user.user_id as any} type="documents" />
       </div>
     </>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import { Lock, User } from "lucide-react";
 import InputField from "@/components/ui/add-input";
 import Image from "next/image";
@@ -39,7 +39,7 @@ const fields = [
 
 export default function Login() {
   const { push } = useRouter();
-  const { login } = useAuth();
+  const { login, user } = useAuth();
 
   const {
     control,
@@ -48,17 +48,15 @@ export default function Login() {
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
   });
-
   const onSubmit = useCallback(
     async (data: LoginFormValues) => {
       try {
         await login(data);
-        push("/lawyer/dashboard");
       } catch (err) {
         console.error("Login failed", err);
       }
     },
-    [login, push]
+    [login]
   );
 
   return (

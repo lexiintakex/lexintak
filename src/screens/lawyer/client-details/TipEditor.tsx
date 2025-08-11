@@ -23,14 +23,16 @@ import {
 import { useEffect } from "react";
 
 export default function TiptapEditor({
+  value,
   onChange,
 }: {
+  value: string;
   onChange?: (value: string) => void;
 }) {
   const editor = useEditor({
     extensions: [StarterKit],
     immediatelyRender: false,
-    content: "<p></p>",
+    content: value || "<p></p>", // now uses prop value
     editorProps: {
       attributes: {
         class:
@@ -41,6 +43,12 @@ export default function TiptapEditor({
       onChange?.(editor.getHTML());
     },
   });
+
+  useEffect(() => {
+    if (editor && value !== editor.getHTML()) {
+      editor.commands.setContent(value || "<p></p>");
+    }
+  }, [value, editor]);
 
   useEffect(() => {
     return () => editor?.destroy();

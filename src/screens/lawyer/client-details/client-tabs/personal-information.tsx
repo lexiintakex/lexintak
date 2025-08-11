@@ -54,7 +54,7 @@ export function PersonalInformationTab({ responses, user }: Props) {
         })}
       </div>
       <AddNotes type="personal_information" />
-      {/* <CommentsList userId={user.user_id as any} type="personal_information" /> */}
+      <CommentsList userId={user.user_id as any} type="personal_information" />
     </div>
   );
 }

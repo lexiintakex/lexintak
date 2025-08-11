@@ -203,7 +203,7 @@ export default function ClientIntakeForm() {
       <div className="flex justify-start mt-8">
         <button
           onClick={handleSubmit}
-          className="inline-flex items-center px-6 py-3 rounded-md bg-blue-primary text-white shadow hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          className="inline-flex  cursor-pointer items-center px-6 py-3 rounded-md bg-blue-primary text-white shadow hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
         >
           Submit
           <ArrowRight className="ml-2 h-5 w-5" />

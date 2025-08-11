@@ -25,10 +25,7 @@ export default function RootLayout({
     <html lang="en" className={inter.className}>
       <body>
         <div id="google_translate_element"></div>
-        <Provider>
-          <Translate />
-          {children}
-        </Provider>
+        <Provider>{children}</Provider>
       </body>
     </html>
   );

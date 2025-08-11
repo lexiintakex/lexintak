@@ -30,10 +30,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
       <div className="flex flex-col flex-1 h-full min-w-0 md:ml-64">
         <header className="hidden md:block sticky top-0 h-16 z-20 bg-white border-b border-gray-200">
-          <TopBar
-            signOutPath="/auth/client-login"
-            profilePath="/client/dashboard/profile"
-          />
+          <TopBar signOutPath="/" profilePath="/client/dashboard/profile" />
         </header>
 
         {/* Page content */}
