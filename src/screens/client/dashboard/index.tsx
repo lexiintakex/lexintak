@@ -3,13 +3,14 @@
 import Banner from "@/components/Banner";
 import ToastAlert from "@/components/ui/toast-alerts";
 import useAuth from "@/hooks/useAuth";
-import React, { useState } from "react";
+import { useState } from "react";
+import { ClientDashboardContent } from "./applications-dashboard/client-dashboard-content";
 
 function Dashboard() {
   const [visible, setVisible] = useState(true);
   const { user } = useAuth();
-  console.log("🚀 ~ Dashboard ~ user:", user);
   const type = user?.form_type;
+
   return (
     <div>
       <Banner
@@ -17,7 +18,7 @@ function Dashboard() {
           type ? "/client/dashboard/files" : "/client/dashboard/select-visa"
         }
         appName="Lexintake"
-        name="Steve"
+        name={user?.full_name || "Client"}
         isButton={true}
       />
       <div className="mt-[20px]">
@@ -29,6 +30,9 @@ function Dashboard() {
           />
         )}
       </div>
+
+      {/* Enhanced Client Dashboard Content */}
+      <ClientDashboardContent user={user} />
     </div>
   );
 }

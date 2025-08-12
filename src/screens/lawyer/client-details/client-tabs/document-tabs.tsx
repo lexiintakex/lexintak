@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { AddNotes } from "../add-notes";
 import { User } from "@/types/auth";
 import CommentsList from "../CommentList";
+import { useParams } from "next/navigation";
 
 export function DocumentsTab({
   documents,
@@ -14,6 +15,7 @@ export function DocumentsTab({
   documents: { name: string; size: string; url: string }[];
   user: User;
 }) {
+  const { id } = useParams();
   const handleAction = (action: string, doc: any) => {
     if (action === "view") {
       window.open(doc.url, "_blank");
@@ -58,7 +60,7 @@ export function DocumentsTab({
         ))}
       </div>
       <div className="mt-6">
-        <AddNotes type="documents" />
+        <AddNotes type="documents" id={id as string} />
         <CommentsList userId={user.user_id as any} type="documents" />
       </div>
     </>

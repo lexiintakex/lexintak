@@ -7,19 +7,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Modal from "@/components/ui/modal";
 import axiosInstance from "@/lib/axios";
-
-export const documentTypes = [
-  { label: "Passport & Green Card", type: "passport" },
-  { label: "Birth Certificate", type: "birth_certificate" },
-  { label: "Marriage Certificate", type: "marriage_certificate" },
-  { label: "Divorce Decree", type: "divorce_decree" },
-  { label: "Green Card", type: "green_card" },
-  { label: "Drivers License", type: "drivers_license" },
-  { label: "Social Security Card", type: "social_security_card" },
-  { label: "Tax Return", type: "tax_return" },
-  { label: "Medical Exam", type: "medical_exam" },
-  { label: "Police Clearance", type: "police_clearance" },
-];
+import useAuth from "@/hooks/useAuth";
 
 const statusMap = {
   required: "Required",
@@ -44,6 +32,8 @@ export default function UploadDocuments() {
   const [viewingFileUrl, setViewingFileUrl] = useState<string | null>(null);
   const [fileToDelete, setFileToDelete] = useState<number | null>(null);
   const { push } = useRouter();
+  const { user } = useAuth();
+  const documentTypes = user?.required_documents;
 
   const allowedTypes = [
     "application/pdf",
@@ -82,7 +72,7 @@ export default function UploadDocuments() {
   useEffect(() => {
     const savedUploads: DocumentUpload[] = [];
 
-    documentTypes.forEach((doc) => {
+    documentTypes?.forEach((doc) => {
       const stored = localStorage.getItem(`doc_${doc.type}`);
       if (stored) {
         const parsed = JSON.parse(stored);
@@ -157,7 +147,7 @@ export default function UploadDocuments() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {documentTypes.map((doc) => {
+        {documentTypes?.map((doc) => {
           const status = getDocumentStatus(doc.type);
           const upload = uploads.find((u) => u.type === doc.type);
 

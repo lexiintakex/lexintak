@@ -10,4 +10,12 @@ export const clientSchema = z.object({
   }),
   username: z.string().min(3, "Username is required"),
   password: z.string().min(6, "Password must be at least 6 characters"),
+  required_documents: z
+    .array(
+      z.object({
+        label: z.string(),
+        type: z.string(),
+      })
+    )
+    .min(1, "Please select at least one document"),
 });

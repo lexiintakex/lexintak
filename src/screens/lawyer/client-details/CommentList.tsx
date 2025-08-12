@@ -1,5 +1,15 @@
+"use client";
+
 import { useState } from "react";
-import { MessageCircle, Edit, Trash2, Check, X } from "lucide-react";
+import {
+  MessageCircle,
+  Edit,
+  Trash2,
+  Check,
+  X,
+  Scale,
+  User,
+} from "lucide-react";
 import {
   useGetComments,
   useUpdateComment,
@@ -11,6 +21,7 @@ import dynamic from "next/dynamic";
 import useAuth from "@/hooks/useAuth";
 import { toast } from "react-toastify";
 import Modal from "@/components/ui/modal";
+
 const TiptapEditor = dynamic(() => import("./TipEditor"), { ssr: false });
 
 interface Comment {
@@ -26,9 +37,9 @@ interface Props {
   userId: string;
 }
 
-export default function CommentsList({ type, userId }: Props) {
+export default function ModernCommentsList({ type, userId }: Props) {
   const { user } = useAuth();
-  const [deleteTarget, setDeleteTarget] = useState<string | null>(null); // track comment to delete
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
   const current_user_id = user?.user_id || "";
   const {
     data: comments = [],
@@ -49,8 +60,7 @@ export default function CommentsList({ type, userId }: Props) {
 
   const handleSave = () => {
     if (!editValue || editValue.trim() === "" || editValue === "<p></p>") {
-      toast.warn;
-      ("Comment cannot be empty.");
+      toast.warn("Comment cannot be empty.");
       return;
     }
     if (editingId) {
@@ -77,14 +87,16 @@ export default function CommentsList({ type, userId }: Props) {
       {
         onSuccess: () => {
           refetch();
-          setDeleteTarget(null); // close modal
+          setDeleteTarget(null);
         },
       }
     );
   };
 
+  const isLawyer = (role: string) => role === "lawyer";
+
   return (
-    <div className="mt-6 space-y-4">
+    <div className="mt-8 space-y-6">
       <Modal
         isOpen={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
@@ -96,116 +108,207 @@ export default function CommentsList({ type, userId }: Props) {
           Are you sure you want to delete this comment?
         </p>
       </Modal>
-      <h3 className="text-lg font-semibold flex items-center gap-2">
-        <MessageCircle className="h-5 w-5 text-blue-500" />
-        Notes History
-      </h3>
+
+      {/* Header with gradient background */}
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-100">
+        <h3 className="text-xl font-bold flex items-center gap-3 text-gray-800">
+          <div className="p-2 bg-blue-primary rounded-xl">
+            <MessageCircle className="h-6 w-6 text-white" />
+          </div>
+          Case Discussion
+        </h3>
+        <p className="text-sm text-gray-600 mt-2">
+          Secure communication between lawyer and client
+        </p>
+      </div>
 
       {loading ? (
-        <p className="text-sm text-muted-foreground">Loading comments...</p>
+        <div className="flex items-center justify-center py-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-primary"></div>
+          <p className="ml-3 text-gray-600">Loading discussion...</p>
+        </div>
       ) : comments.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No comments found.</p>
+        <div className="text-center py-12 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
+          <MessageCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+          <p className="text-gray-500 font-medium">No discussion yet</p>
+          <p className="text-sm text-gray-400">
+            Start the conversation with your first note
+          </p>
+        </div>
       ) : (
-        <div className="space-y-3">
-          {comments.map((comment: any) => (
-            <div
-              key={comment.id}
-              className="bg-white border border-gray-100 rounded-xl shadow-sm hover:shadow-lg transition-all duration-200 p-4"
-            >
-              {/* Header */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  {comment.profile_image ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={comment.profile_image}
-                      alt={comment.username}
-                      className="w-9 h-9 rounded-full object-cover border border-gray-200"
-                    />
-                  ) : (
-                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-100 to-blue-50 text-blue-700 flex items-center justify-center font-semibold">
-                      {comment.username?.charAt(0).toUpperCase()}
-                    </div>
-                  )}
+        <div className="space-y-6 max-h-[600px] overflow-y-auto pr-2">
+          {comments.map((comment: any) => {
+            const lawyer = isLawyer(comment.role);
 
-                  <div>
-                    <p className="text-sm font-semibold text-gray-900">
-                      {comment.username}
-                    </p>
-                    <span
-                      className={cn(
-                        "text-xs px-2 py-0.5 rounded-full font-medium",
-                        comment.role === "admin"
-                          ? "bg-red-50 text-red-600 border border-red-200"
-                          : "bg-green-50 text-green-600 border border-green-200"
-                      )}
-                    >
-                      {comment.role}
-                    </span>
+            return (
+              <div
+                key={comment.id}
+                className={cn(
+                  "flex gap-4 group",
+                  lawyer ? "justify-start" : "justify-end"
+                )}
+              >
+                {lawyer && (
+                  <div className="flex-shrink-0">
+                    {comment.profile_image ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={comment.profile_image || "/placeholder.svg"}
+                        alt={comment.username}
+                        className="w-12 h-12 rounded-full object-cover border-2 border-blue-200 shadow-sm"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-700 to-blue-primary text-white flex items-center justify-center font-bold text-lg shadow-lg">
+                        <Scale className="h-6 w-6" />
+                      </div>
+                    )}
                   </div>
-                </div>
-                <p className="text-xs text-gray-400">
-                  {new Date(comment.created_at).toLocaleString("en-US", {
-                    year: "numeric",
-                    month: "short",
-                    day: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </p>
-              </div>
+                )}
 
-              {editingId === comment.id ? (
-                <div className="mt-3 space-y-2">
-                  <TiptapEditor value={editValue} onChange={setEditValue} />
-                  <div className="flex gap-2">
-                    <button
-                      type="submit"
-                      onClick={handleSave}
-                      className="px-[20px] flex flex-row cursor-pointer text-base font-medium items-center gap-x-[10px] py-2 bg-blue-primary text-white rounded-md hover:bg-blue-800 transition"
-                    >
-                      <Check size={16} /> Save
-                    </button>
-                    <Button
-                      onClick={() => setEditingId(null)}
-                      variant="outline"
-                      size="lg"
-                      className="flex items-center gap-1 cursor-pointer"
-                    >
-                      <X size={16} /> Cancel
-                    </Button>
-                  </div>
-                </div>
-              ) : (
                 <div
-                  dangerouslySetInnerHTML={{ __html: comment.comment }}
-                  className="mt-3 text-sm text-gray-700 leading-relaxed"
-                />
-              )}
+                  className={cn(
+                    "max-w-[70%] rounded-2xl shadow-sm transition-all duration-200 group-hover:shadow-md",
+                    lawyer
+                      ? "bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200"
+                      : "bg-gradient-to-br from-emerald-50 to-emerald-100 border border-emerald-200"
+                  )}
+                >
+                  <div
+                    className={cn(
+                      "px-4 py-3 border-b rounded-t-2xl",
+                      lawyer
+                        ? "bg-gradient-to-r from-blue-700 to-blue-primary border-blue-300"
+                        : "bg-gradient-to-r from-emerald-500 to-emerald-600 border-emerald-300"
+                    )}
+                  >
+                    <div className="flex items-center justify-between w-[300px]">
+                      <div className="flex items-center justify-between w-full gap-2">
+                        <div className="flex items-center gap-2 text-white">
+                          {lawyer ? (
+                            <Scale className="h-4 w-4" />
+                          ) : (
+                            <User className="h-4 w-4" />
+                          )}
+                          <div className="flex flex-col">
+                            <span className="font-semibold text-sm">
+                              {comment.username}
+                            </span>
+                            <p className="text-xs text-white/80">
+                              {new Date(comment.created_at).toLocaleString(
+                                "en-US",
+                                {
+                                  month: "short",
+                                  day: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                }
+                              )}
+                            </p>
+                          </div>
+                        </div>
+                        <span
+                          className={cn(
+                            "text-xs px-2 py-1 rounded-full font-medium",
+                            lawyer
+                              ? "bg-blue-100 text-blue-800"
+                              : "bg-emerald-100 text-emerald-800"
+                          )}
+                        >
+                          {lawyer ? "Lawyer" : "Client"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
 
-              {/* Actions */}
-              {editingId !== comment.id && (
-                <div className="mt-3 flex gap-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleEdit(comment)}
-                    className="text-blue-500 cursor-pointer  hover:text-blue-700 flex items-center gap-1"
-                  >
-                    <Edit size={16} /> Edit
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDelete(comment.id)}
-                    className="text-red-500 cursor-pointer  hover:text-red-700 flex items-center gap-1"
-                  >
-                    <Trash2 size={16} /> Delete
-                  </Button>
+                  {/* Message content */}
+                  <div className="p-4">
+                    {editingId === comment.id ? (
+                      comment.canEditOrDelete && (
+                        <div className="space-y-3">
+                          <TiptapEditor
+                            value={editValue}
+                            onChange={setEditValue}
+                          />
+                          <div className="flex gap-2">
+                            <button
+                              type="submit"
+                              onClick={handleSave}
+                              className={cn(
+                                "px-4 py-2 rounded-lg font-medium text-white transition-colors flex items-center gap-2",
+                                lawyer
+                                  ? "bg-blue-500 hover:bg-blue-600"
+                                  : "bg-emerald-500 hover:bg-emerald-600"
+                              )}
+                            >
+                              <Check size={16} /> Save
+                            </button>
+                            <Button
+                              onClick={() => setEditingId(null)}
+                              variant="outline"
+                              size="sm"
+                              className="flex items-center gap-2"
+                            >
+                              <X size={16} /> Cancel
+                            </Button>
+                          </div>
+                        </div>
+                      )
+                    ) : (
+                      <div
+                        dangerouslySetInnerHTML={{ __html: comment.comment }}
+                        className="text-gray-700 leading-relaxed prose prose-sm max-w-none"
+                      />
+                    )}
+
+                    {/* Actions */}
+                    {editingId !== comment.id && comment.canEditOrDelete && (
+                      <div className="mt-4 pt-3 border-t border-gray-200 flex gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEdit(comment)}
+                          className={cn(
+                            "text-xs cursor-pointer font-medium transition-colors flex items-center gap-1",
+                            lawyer
+                              ? "text-blue-primary hover:text-blue-primary   hover:bg-blue-50"
+                              : "text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                          )}
+                        >
+                          <Edit size={14} /> Edit
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDelete(comment.id)}
+                          className="text-red-500 cursor-pointer hover:text-red-700 hover:bg-red-50 text-xs font-medium flex items-center gap-1"
+                        >
+                          <Trash2 size={14} /> Delete
+                        </Button>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              )}
-            </div>
-          ))}
+
+                {/* Client avatar on right */}
+                {!lawyer && (
+                  <div className="flex-shrink-0">
+                    {comment.profile_image ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={comment.profile_image || "/placeholder.svg"}
+                        alt={comment.username}
+                        className="w-12 h-12 rounded-full object-cover border-2 border-emerald-200 shadow-sm"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 text-white flex items-center justify-center font-bold text-lg shadow-lg">
+                        <User className="h-6 w-6" />
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

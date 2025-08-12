@@ -3,7 +3,6 @@
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
-import axiosInstance from "@/lib/axios";
 import useAuth from "@/hooks/useAuth";
 import { useParams } from "next/navigation";
 import { useCreateComment } from "@/api/comments";
@@ -11,12 +10,11 @@ import { toast } from "react-toastify";
 
 const TiptapEditor = dynamic(() => import("./TipEditor"), { ssr: false });
 
-export function AddNotes({ type }: { type: string }) {
+export function AddNotes({ type, id }: { type: string; id: string }) {
   const [hydrated, setHydrated] = useState(false);
   const { mutateAsync: createComment } = useCreateComment();
   const { user } = useAuth();
   const created_by = user?.user_id ?? "";
-  const { id } = useParams();
   const [note, setNote] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 

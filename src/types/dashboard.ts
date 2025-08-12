@@ -43,3 +43,35 @@ export type LawyerData = {
   role: "Lawyer" | "Admin";
   lastActivity: string;
 };
+
+export type ClientDashboardResponse = {
+  stats: {
+    status: string;
+    progress: number;
+    totalDocuments: number;
+    totalResponses: number;
+  };
+  overview: {
+    submittedDate: string;
+    lastUpdated: string;
+    lawyerName: string;
+    applicationProgress: {
+      step: string;
+      completed: boolean;
+      eta?: string;
+    }[];
+  };
+  applicationData: {
+    key_name: string;
+    key_value: string;
+    created_at: string;
+  }[];
+  documents: {
+    document_type: string;
+    file_paths: {
+      file_path: string;
+      file_type: string;
+    }[];
+    created_at: string; // ISO date string
+  }[];
+};

@@ -10,6 +10,7 @@ import { z } from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { clientSchema } from "@/validation/auth";
+import { documentTypes } from "@/lib/utils";
 
 function AddClient() {
   const { user } = useAuth();
@@ -81,6 +82,7 @@ function AddClient() {
       form_type: "",
       username: "",
       password: "",
+      required_documents: [], // add this
     },
   });
 
@@ -107,27 +109,94 @@ function AddClient() {
       <h1 className="text-lg md:text-xl lg:text-2xl font-bold mt-[20px]">
         Enter Client Details
       </h1>
+
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-[30px]"
       >
-        {fields.map((f) => (
-          <div key={f.id}>
-            <Controller
-              name={f.id as keyof ClientFormValues}
-              control={control}
-              render={({ field, fieldState: { error } }) => (
-                <InputField
-                  {...f}
-                  value={field.value ?? ""}
-                  onChange={field.onChange}
-                  error={error?.message}
-                />
-              )}
-            />
-          </div>
-        ))}
-        <div className="md:col-span-2 flex justify-start mt-4">
+        {fields
+          .filter((f) => f.id !== "required_documents")
+          .map((f) => (
+            <div key={f.id}>
+              <Controller
+                name={f.id as keyof ClientFormValues}
+                control={control}
+                render={({ field, fieldState: { error } }) => (
+                  <InputField
+                    {...f}
+                    value={
+                      Array.isArray(field.value)
+                        ? JSON.stringify(field.value)
+                        : field.value ?? ""
+                    }
+                    onChange={field.onChange}
+                    error={error?.message}
+                  />
+                )}
+              />
+            </div>
+          ))}
+
+        {/* Required Documents Section */}
+        <div className="md:col-span-2 lg:col-span-3">
+          <label className="block mb-3 font-medium text-lg">
+            Required Documents
+          </label>
+          <Controller
+            name="required_documents"
+            control={control}
+            render={({ field, fieldState: { error } }) => {
+              const handleToggle = (doc: { label: string; type: string }) => {
+                const isSelected = field.value.some(
+                  (d: any) => d.type === doc.type
+                );
+                if (isSelected) {
+                  field.onChange(
+                    field.value.filter((d: any) => d.type !== doc.type)
+                  );
+                } else {
+                  field.onChange([...field.value, doc]);
+                }
+              };
+
+              return (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {documentTypes.map((doc) => {
+                    const isChecked = field.value.some(
+                      (d: any) => d.type === doc.type
+                    );
+                    return (
+                      <label
+                        key={doc.type}
+                        className={`flex items-center space-x-2 border rounded-lg p-3 cursor-pointer transition 
+                    ${
+                      isChecked
+                        ? "bg-blue-50 border-blue-400"
+                        : "hover:bg-gray-50"
+                    }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={() => handleToggle(doc)}
+                          className="h-4 w-4 text-blue-600 border-gray-300 rounded"
+                        />
+                        <span>{doc.label}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              );
+            }}
+          />
+          {errors.required_documents && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.required_documents.message}
+            </p>
+          )}
+        </div>
+        {/* Submit Button */}
+        <div className="md:col-span-2 lg:col-span-3 flex justify-start mt-4">
           <button
             type="submit"
             disabled={isPending || isSubmitting}

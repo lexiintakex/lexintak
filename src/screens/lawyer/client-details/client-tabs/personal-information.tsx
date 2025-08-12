@@ -7,6 +7,7 @@ import { fieldIconMap, fieldLabelMap } from "../field-maping";
 import { User } from "@/types/auth";
 import { AddNotes } from "../add-notes";
 import CommentsList from "../CommentList";
+import { useParams } from "next/navigation";
 
 interface Props {
   responses: { key_name: string; key_value: string; language: string }[];
@@ -14,6 +15,7 @@ interface Props {
 }
 
 export function PersonalInformationTab({ responses, user }: Props) {
+  const { id } = useParams();
   useEffect(() => {
     console.log("Fetching personal information data...");
   }, []);
@@ -53,7 +55,7 @@ export function PersonalInformationTab({ responses, user }: Props) {
           );
         })}
       </div>
-      <AddNotes type="personal_information" />
+      <AddNotes type="personal_information" id={id as string} />
       <CommentsList userId={user.user_id as any} type="personal_information" />
     </div>
   );

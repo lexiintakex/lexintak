@@ -1,3 +1,7 @@
+export type Document = {
+  label: string;
+  type: string;
+};
 export type User = {
   user_id: string;
   full_name: string;
@@ -10,6 +14,7 @@ export type User = {
   otp: string | null;
   otp_expires: string | null; // or Date | null if you're parsing dates
   created_by: string | null;
+  required_documents: Document[];
   created_at: string; // or Date if you parse it
 };
 

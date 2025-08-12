@@ -6,9 +6,9 @@ import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { fieldMappings, sections } from "./data";
-import { documentTypes } from "../files/UploadFile";
 import axiosInstance from "@/lib/axios";
 import useAuth from "@/hooks/useAuth";
+import { documentTypes } from "@/lib/utils";
 
 export default function ClientIntakeForm() {
   const router = useRouter();
