@@ -79,9 +79,20 @@ export default function VoiceAssistantScreen() {
     try {
       const sessionId = await handleCreateSession();
       console.log("Session ID:", sessionId);
-      await vapi.start(
+      // await vapi.start(
+      //   null,
+      //   { maxDurationSeconds: 1800, metadata: { sessionId } },
+      //   null,
+      //   workflowId
+      // );
+
+      vapi.start(
         null,
-        { maxDurationSeconds: 1800, metadata: { sessionId } },
+        {
+          variableValues: {
+            user_id: user?.user_id,
+          },
+        },
         null,
         workflowId
       );
