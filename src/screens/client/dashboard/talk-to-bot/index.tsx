@@ -79,23 +79,8 @@ export default function VoiceAssistantScreen() {
     try {
       const sessionId = await handleCreateSession();
       console.log("Session ID:", sessionId);
-      // await vapi.start(
-      //   null,
-      //   { maxDurationSeconds: 1800, metadata: { sessionId } },
-      //   null,
-      //   workflowId
-      // );
+      vapi.start(null, { maxDurationSeconds: 1800 }, null, workflowId);
 
-      vapi.start(
-        null,
-        {
-          variableValues: {
-            user_id: user?.user_id,
-          },
-        },
-        null,
-        workflowId
-      );
       setIsRecording(true);
     } catch (err) {
       console.error("Failed to create session or start Vapi:", err);
