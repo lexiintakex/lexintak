@@ -10,10 +10,10 @@ import { DocumentsTab } from "./client-tabs/document-tabs";
 import { ChatTranscriptTab } from "./client-tabs/chat-transcript-tab";
 import { StatusHistoryTab } from "./client-tabs/status-history";
 import { ApplicationManagement } from "./application-manage";
-import { AddNotes } from "./add-notes";
 import { ArrowRight } from "lucide-react";
 import { useApplicationByUserId } from "@/api/applications";
 import Loader from "@/components/ui/loader";
+import PDFSummaryTab from "./client-tabs/pdf-summary";
 
 const validTabs = [
   "personal-information",
@@ -51,20 +51,26 @@ export default function ClientDetails() {
   return (
     <div className="min-h-screen w-full p-3">
       <Card className="mx-auto w-full max-w-full">
-        <CardHeader>
+        <CardHeader className="flex justify-between w-full flex-row  items-center">
           <CardTitle className="text-2xl text-[#1F1F1F] font-semibold">
             Client Management
           </CardTitle>
+          <div>
+            <button className="bg-blue-primary text-white  px-[20px] py-[10px] rounded-md cursor-pointer hover:bg-blue-800">
+              Generate Complete PDF
+            </button>
+          </div>
         </CardHeader>
 
         <CardContent className="space-y-6 w-full">
           <Tabs value={activeTab} onValueChange={handleTabChange}>
-            <TabsList className="grid grid-cols-4 gap-2">
+            <TabsList className="grid grid-cols-5 gap-2">
               <TabsTrigger value="personal-information">
                 Personal Information
               </TabsTrigger>
               <TabsTrigger value="documents">Documents</TabsTrigger>
               <TabsTrigger value="chat-transcript">Chat Transcript</TabsTrigger>
+              <TabsTrigger value="pdf-summary">PDF Summary</TabsTrigger>
               <TabsTrigger value="status-history">Status History</TabsTrigger>
             </TabsList>
 
@@ -90,6 +96,15 @@ export default function ClientDetails() {
             </TabsContent>
             <TabsContent value="chat-transcript">
               <ChatTranscriptTab user_id={id as string} />
+            </TabsContent>
+            <TabsContent value="pdf-summary">
+              <PDFSummaryTab
+                client_id={id as string}
+                is_completed_pdf={true}
+                is_completed_pdf_url={
+                  data.pdf_summary.is_completed_pdf_url || ""
+                }
+              />
             </TabsContent>
             <TabsContent value="status-history">
               <StatusHistoryTab />

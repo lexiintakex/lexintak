@@ -29,6 +29,7 @@ export type Language = "English" | "Spanish";
 export interface AuthContextType {
   user: User | null;
   token: string;
+  isLoading: boolean;
   login: (credentials: { email: string; password: string }) => Promise<any>;
   signup: (data: SignupData) => Promise<any>;
   logout: () => void;

@@ -40,7 +40,22 @@ axiosInstance.interceptors.response.use(
         showError("Bad request. Please check your input.");
         break;
       case 401:
-        showError("Unauthorized. Please login again.");
+        // Handle unauthorized - token expired or invalid
+        showError("Session expired. Please login again.");
+
+        // Clear invalid token from localStorage
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("token");
+
+          // Dispatch storage event to notify other tabs
+          window.dispatchEvent(
+            new StorageEvent("storage", {
+              key: "token",
+              oldValue: localStorage.getItem("token"),
+              newValue: null,
+            })
+          );
+        }
         break;
       case 403:
         showError("Forbidden. Access denied.");

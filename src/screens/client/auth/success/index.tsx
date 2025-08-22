@@ -10,7 +10,7 @@ export default function ClientSuccess() {
   const { push } = useRouter();
 
   const handleLoginRedirect = () => {
-    push("/auth/client-login");
+    push("/");
   };
 
   return (

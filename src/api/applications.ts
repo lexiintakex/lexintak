@@ -25,6 +25,10 @@ export interface ApplicationData {
   responses: UserResponse[];
   documents: Document[];
   user: User;
+  pdf_summary: {
+    is_completed_pdf: boolean;
+    is_completed_pdf_url?: string;
+  };
 }
 
 export const useApplicationByUserId = (

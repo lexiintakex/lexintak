@@ -42,7 +42,7 @@ export default function ClientResetPassword() {
       localStorage.removeItem("reset-value");
       localStorage.removeItem("reset-method");
 
-      push("/auth/client-login");
+      push("/");
     } catch (err) {
       console.log("🚀 ~ handleSubmit ~ err:", err);
     }
