@@ -9,11 +9,12 @@ import { fieldMappings, sections } from "./data";
 import axiosInstance from "@/lib/axios";
 import useAuth from "@/hooks/useAuth";
 import { documentTypes } from "@/lib/utils";
+import { useUserFormResponses } from "@/api/assistant";
 
 export default function ClientIntakeForm() {
   const router = useRouter();
   const { user } = useAuth();
-
+  const { data: voiceBotData } = useUserFormResponses();
   const [values, setValues] = useState<Record<string, string>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [documentResponses, setDocumentResponses] = useState<
@@ -27,10 +28,73 @@ export default function ClientIntakeForm() {
     {}
   );
 
+  const fillFormWithPriorityData = () => {
+    console.log("voiceBotData", voiceBotData);
+    const initialValues: Record<string, string> = {};
+
+    if (voiceBotData) {
+      Object.entries(voiceBotData).forEach(([key_name, key_value]) => {
+        console.log("response", key_name, key_value);
+
+        const formFieldId = mapVoiceBotKeyToFormField(key_name);
+        if (formFieldId) {
+          initialValues[formFieldId] = String(key_value);
+        }
+      });
+    }
+
+    documentTypes.forEach(({ type }) => {
+      const saved = localStorage.getItem(`doc_${type}`);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed?.response) {
+          const typeMapping = fieldMappings[type] || {};
+          Object.entries(parsed.response).forEach(([ocrKey, value]) => {
+            const formFieldId = typeMapping[ocrKey];
+            if (formFieldId && value && !initialValues[formFieldId]) {
+              initialValues[formFieldId] = String(value);
+            }
+          });
+        }
+      }
+    });
+
+    setValues(initialValues);
+  };
+
+  const mapVoiceBotKeyToFormField = (key: string): string | null => {
+    const keyMappings: Record<string, string> = {
+      full_legal_name: "legal_name",
+      height: "height",
+      weight: "weight",
+      eye_color: "eye_color",
+      father_dob: "father_dob",
+      hair_color: "hair_color",
+      mother_dob: "mother_dob",
+      phone_number: "phone_number",
+      children_info: "children_info",
+      email_address: "email_address",
+      arrest_history: "arrest_history",
+      marital_status: "marital_status",
+      address_history: "address_history",
+      current_address: "current_address",
+      father_residence: "father_residence",
+      has_lived_in_usa: "has_lived_in_usa",
+      mother_residence: "mother_residence",
+      previous_marriage: "previous_marriage",
+      employment_history: "employment_history",
+      number_of_children: "number_of_children",
+      father_country_birth: "father_country",
+      mother_country_birth: "mother_country",
+      immigration_application: "immigration_application",
+    };
+
+    return keyMappings[key] || key;
+  };
+
   useEffect(() => {
     const responses: Record<string, any> = {};
     const fileUrls: Record<string, string> = {};
-    const initialValues: Record<string, string> = {};
 
     documentTypes.forEach(({ type }) => {
       const saved = localStorage.getItem(`doc_${type}`);
@@ -38,16 +102,7 @@ export default function ClientIntakeForm() {
         const parsed = JSON.parse(saved);
         if (parsed?.response) {
           responses[type] = parsed.response;
-
-          const typeMapping = fieldMappings[type] || {};
-          Object.entries(parsed.response).forEach(([ocrKey, value]) => {
-            const formFieldId = typeMapping[ocrKey];
-            if (formFieldId && value) {
-              initialValues[formFieldId] = String(value);
-            }
-          });
         }
-
         if (parsed?.fileUrl) {
           fileUrls[type] = parsed.fileUrl;
         }
@@ -56,8 +111,11 @@ export default function ClientIntakeForm() {
 
     setDocumentResponses(responses);
     setDocumentFileUrls(fileUrls);
-    setValues(initialValues);
   }, []);
+
+  useEffect(() => {
+    fillFormWithPriorityData();
+  }, [voiceBotData]);
 
   useEffect(() => {
     const updatedVisibility: Record<string, boolean> = {};
@@ -66,8 +124,6 @@ export default function ClientIntakeForm() {
       section.fields.forEach((field) => {
         if (field.dependsOn) {
           const { field: depField, value } = field.dependsOn;
-
-          // Ensure both sides are strings
           updatedVisibility[field.id] =
             String(values[depField]) === String(value);
         } else {
@@ -116,9 +172,6 @@ export default function ClientIntakeForm() {
     }
 
     try {
-      const checkRes = await axiosInstance.get(`/check-document/${userId}`);
-      if (!checkRes.data.success) return;
-
       const formData = new FormData();
       formData.append("document_type", "identity_documents");
 

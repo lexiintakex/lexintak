@@ -23,3 +23,13 @@ export const useWorkflowId = (
     retry: 1,
   });
 };
+
+export const useUserFormResponses = () => {
+  return useQuery({
+    queryKey: ["userFormResponses"],
+    queryFn: async () => {
+      const response = await axiosInstance.get("/responses");
+      return response.data;
+    },
+  });
+};

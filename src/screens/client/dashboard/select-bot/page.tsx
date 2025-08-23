@@ -1,11 +1,16 @@
 "use client";
 
 import Banner from "@/components/Banner";
+import useAuth from "@/hooks/useAuth";
 import { Mic, MessageSquare, FileText } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 
 function SeelecBot() {
+  const { user } = useAuth();
+
+  const isVoiceBotSessionCreated = user?.is_voice_bot_session_created;
+
   return (
     <div>
       <Banner appName="Lexintake" name="Steve" />
@@ -14,20 +19,22 @@ function SeelecBot() {
         Choose how you’d like to share your information with us.
       </h2>
 
-      <div className="flex flex-row items-center gap-x-4 py-5 w-[80%]">
-        <Link
-          href={"/client/dashboard/tts-bot"}
-          type="button"
-          className="w-full py-[12px]  cursor-pointer flex items-center justify-center gap-2 text-base font-medium mt-4  bg-blue-primary text-white rounded-md hover:bg-blue-800 transition"
-        >
-          <Mic className="w-5 h-5" />
-          Talk with Voicebot
-        </Link>
+      <div className="flex flex-row items-center gap-x-4 py-5 w-full">
+        {!isVoiceBotSessionCreated && (
+          <Link
+            href={"/client/dashboard/tts-bot"}
+            type="button"
+            className="w-auto px-[40px] py-[12px]  cursor-pointer flex items-center justify-center gap-2 text-base font-medium mt-4  bg-blue-primary text-white rounded-md hover:bg-blue-800 transition"
+          >
+            <Mic className="w-5 h-5" />
+            Talk with Voicebot
+          </Link>
+        )}
 
         <Link
           href={"/client/dashboard/text-chatbot"}
           type="button"
-          className="w-full  cursor-pointer flex items-center justify-center gap-2 text-base font-medium mt-4 py-[12px] border border-blue-primary text-blue-primary rounded-md hover:bg-blue-50 transition"
+          className="w-auto px-[40px]   cursor-pointer flex items-center justify-center gap-2 text-base font-medium mt-4 py-[12px] border border-blue-primary text-blue-primary rounded-md hover:bg-blue-50 transition"
         >
           <MessageSquare className="w-5 h-5" />
           Chat with Chatbot
@@ -35,7 +42,7 @@ function SeelecBot() {
 
         <Link
           href={"/client/dashboard/client-intake-form"}
-          className="w-full cursor-pointer flex items-center justify-center gap-2 text-base font-medium mt-4 py-[12px] border border-blue-primary text-blue-primary rounded-md hover:bg-blue-50 transition"
+          className="w-auto px-[40px] cursor-pointer flex items-center justify-center gap-2 text-base font-medium mt-4 py-[12px] border border-blue-primary text-blue-primary rounded-md hover:bg-blue-50 transition"
         >
           <FileText className="w-5 h-5" />
           Fill out Form

@@ -1,12 +1,10 @@
 "use client";
 
 import useAuth from "@/hooks/useAuth";
-import axiosInstance from "@/lib/axios";
 import clsx from "clsx";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React from "react";
-import { toast } from "react-toastify";
 
 interface BannerProps {
   name: string;
@@ -27,21 +25,7 @@ export default function Banner({
   const { user } = useAuth();
 
   const handleStartClick = async () => {
-    if (!user?.user_id) {
-      toast.error("User not logged in.");
-      return;
-    }
-
-    try {
-      const res = await axiosInstance.get(`/check-document/${user.user_id}`);
-      if (!res.data.success) {
-        return;
-      }
-
-      push(buttonPath as string);
-    } catch (err) {
-      console.error(err);
-    }
+    push(buttonPath as string);
   };
 
   return (
@@ -101,21 +85,23 @@ export default function Banner({
           </p>
           <p className="text-lg md:text-xl lg:text-2xl font-bold mt-[10px]">{`Welcome to ${appName}`}</p>
         </div>
-        {isButton && (
-          <button
-            // onClick={() => push("/client/dashboard/select-visa")}
-            onClick={handleStartClick}
-            className="text-base flex flex-row items-center py-[16px]  gap-x-[10px] font-medium border-[1px] border-white px-[20px] cursor-pointer  bg-transparent rounded-xl"
-          >
-            <Image
-              src={"/assets/dashboard/start.svg"}
-              width={20}
-              height={20}
-              alt="Start"
-            />
-            Start New Application
-          </button>
-        )}
+        {user?.is_application_created
+          ? ""
+          : isButton && (
+              <button
+                // onClick={() => push("/client/dashboard/select-visa")}
+                onClick={handleStartClick}
+                className="text-base flex flex-row items-center py-[16px]  gap-x-[10px] font-medium border-[1px] border-white px-[20px] cursor-pointer  bg-transparent rounded-xl"
+              >
+                <Image
+                  src={"/assets/dashboard/start.svg"}
+                  width={20}
+                  height={20}
+                  alt="Start"
+                />
+                Start New Application
+              </button>
+            )}
       </div>
     </div>
   );

@@ -15,6 +15,8 @@ export type User = {
   otp_expires: string | null; // or Date | null if you're parsing dates
   created_by: string | null;
   required_documents: Document[];
+  is_application_created?: boolean;
+  is_voice_bot_session_created?: boolean;
   created_at: string; // or Date if you parse it
 };
 

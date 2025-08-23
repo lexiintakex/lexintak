@@ -54,6 +54,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
     setToken("");
 
+    // Clear all localStorage data including documents and voice bot responses
+    const keysToRemove = [
+      "token",
+      "client-intake-values",
+      // Clear all document-related localStorage items
+      ...Object.keys(localStorage).filter((key) => key.startsWith("doc_")),
+      // Clear any other application-specific data
+      ...Object.keys(localStorage).filter((key) => key.includes("response")),
+      ...Object.keys(localStorage).filter((key) => key.includes("transcript")),
+      ...Object.keys(localStorage).filter((key) => key.includes("session")),
+      ...Object.keys(localStorage).filter((key) => key.includes("workflow")),
+      ...Object.keys(localStorage).filter((key) => key.includes("assistant")),
+    ];
+
+    // Remove all identified keys
+    keysToRemove.forEach((key) => {
+      if (localStorage.getItem(key)) {
+        localStorage.removeItem(key);
+      }
+    });
+
     // Clear API headers
     delete api.defaults.headers.common["Authorization"];
 
@@ -168,8 +189,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setToken("");
     setIsLoading(false);
 
-    // Clear storage and API headers
-    localStorage.removeItem("token");
+    // Clear all localStorage data including documents and voice bot responses
+    const keysToRemove = [
+      "token",
+      "client-intake-values",
+      // Clear all document-related localStorage items
+      ...Object.keys(localStorage).filter((key) => key.startsWith("doc_")),
+      // Clear any other application-specific data
+      ...Object.keys(localStorage).filter((key) => key.includes("response")),
+      ...Object.keys(localStorage).filter((key) => key.includes("transcript")),
+      ...Object.keys(localStorage).filter((key) => key.includes("session")),
+      ...Object.keys(localStorage).filter((key) => key.includes("workflow")),
+      ...Object.keys(localStorage).filter((key) => key.includes("assistant")),
+    ];
+
+    // Remove all identified keys
+    keysToRemove.forEach((key) => {
+      if (localStorage.getItem(key)) {
+        localStorage.removeItem(key);
+      }
+    });
+
+    // Clear API headers
     delete api.defaults.headers.common["Authorization"];
 
     // Always redirect to main login page after logout
