@@ -253,12 +253,19 @@ export default function ClientIntakeForm() {
         </section>
       ))}
 
-      <div className="flex justify-start mt-8">
+      <div className="flex flex-row items-center gap-x-[20px] mt-8">
         <button
           onClick={handleSubmit}
           className="inline-flex  cursor-pointer items-center px-6 py-3 rounded-md bg-blue-primary text-white shadow hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
         >
           Submit
+          <ArrowRight className="ml-2 h-5 w-5" />
+        </button>
+        <button
+          onClick={() => router.push("/client/dashboard/talk-to-bot")}
+          className="inline-flex  cursor-pointer items-center px-6 py-[10px] rounded-md bg-transparent text-blue-primary border border-blue-primary shadow hover:bg-blue-primary hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          Retry Voice Bot
           <ArrowRight className="ml-2 h-5 w-5" />
         </button>
       </div>

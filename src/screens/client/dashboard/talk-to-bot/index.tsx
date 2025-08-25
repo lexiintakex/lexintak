@@ -64,7 +64,7 @@ export default function VoiceAssistantScreen() {
       setIsRecording(false);
       setIsMicMuted(false);
       setIsSpeakerOn(true);
-      router.push("/client/dashboard/confiram");
+      router.push("/client/dashboard/client-intake-form");
     });
 
     vapiInstance.on("message", (message) => {
