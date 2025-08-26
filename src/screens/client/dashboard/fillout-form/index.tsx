@@ -34,13 +34,25 @@ export default function ClientIntakeForm() {
 
     if (voiceBotData) {
       Object.entries(voiceBotData).forEach(([key_name, key_value]) => {
-        console.log("response", key_name, key_value);
+        console.log(
+          "Processing voice bot key:",
+          key_name,
+          "with value:",
+          key_value
+        );
 
         const formFieldId = mapVoiceBotKeyToFormField(key_name);
+        console.log("Mapped to form field:", formFieldId);
+
         if (formFieldId) {
           initialValues[formFieldId] = String(key_value);
+          console.log("✅ Set form field", formFieldId, "to:", key_value);
+        } else {
+          console.log("❌ No mapping found for key:", key_name);
         }
       });
+
+      console.log("🎯 Successfully mapped fields:", Object.keys(initialValues));
     }
 
     documentTypes.forEach(({ type }) => {
@@ -59,37 +71,184 @@ export default function ClientIntakeForm() {
       }
     });
 
-    setValues(initialValues);
+    console.log("Final initial values set:", initialValues);
+
+    // Log missing fields that are in the form but not populated
+    const missingFields = sections.flatMap((section) =>
+      section.fields
+        .filter((field) => !initialValues[field.id] && field.required)
+        .map((field) => field.id)
+    );
+    if (missingFields.length > 0) {
+      console.log("Missing required fields:", missingFields);
+      console.log(
+        "These fields need to be added to the voice bot or made optional"
+      );
+    }
+
+    // Set default values for some missing fields to prevent form submission errors
+    const defaultValues: Record<string, string> = {
+      // Set immigration_application to true if it's not provided, so dependent fields show
+      immigration_application: initialValues.immigration_application || "true",
+    };
+
+    // Handle immigration_application field - if voice bot provides text, convert to toggle
+    if (
+      initialValues.immigration_application &&
+      typeof initialValues.immigration_application === "string"
+    ) {
+      // If the voice bot provided text (not just "true"/"false"), set it to true
+      // and store the details in a custom field or handle it specially
+      if (
+        initialValues.immigration_application !== "true" &&
+        initialValues.immigration_application !== "false"
+      ) {
+        console.log(
+          "Voice bot provided immigration details:",
+          initialValues.immigration_application
+        );
+        // Store the details in the immigration_details field and set toggle to true
+        defaultValues.immigration_details =
+          initialValues.immigration_application;
+        defaultValues.immigration_application = "true";
+      }
+    }
+
+    // Handle missing place of birth fields by extracting from residence data
+    if (initialValues.father_address && !initialValues.father_place_of_birth) {
+      // Extract city from father's address (e.g., "Karachi, Pakistan" -> "Karachi")
+      const fatherCity = initialValues.father_address.split(",")[0]?.trim();
+      if (fatherCity) {
+        defaultValues.father_place_of_birth = fatherCity;
+        console.log(
+          "🔍 Extracted father place of birth from address:",
+          fatherCity
+        );
+      }
+    }
+
+    if (initialValues.mother_address && !initialValues.mother_place_of_birth) {
+      // Extract city from mother's address (e.g., "Karachi, Pakistan" -> "Karachi")
+      const motherCity = initialValues.mother_address.split(",")[0]?.trim();
+      if (motherCity) {
+        defaultValues.mother_place_of_birth = motherCity;
+        console.log(
+          "🔍 Extracted mother place of birth from address:",
+          motherCity
+        );
+      }
+    }
+
+    // Handle missing parent names by setting defaults
+    if (!initialValues.father_name) {
+      defaultValues.father_name = "Not provided by voice bot";
+      console.log("🔍 Set default father name");
+    }
+
+    if (!initialValues.mother_name) {
+      defaultValues.mother_name = "Not provided by voice bot";
+      console.log("🔍 Set default mother name");
+    }
+
+    // Handle date format conversion for DOB fields
+    if (initialValues.father_dob) {
+      console.log("🔍 Processing father DOB:", initialValues.father_dob);
+      // Convert text date to HTML date format if possible
+      try {
+        const date = new Date(initialValues.father_dob);
+        if (!isNaN(date.getTime())) {
+          const formattedDate = date.toISOString().split("T")[0]; // YYYY-MM-DD format
+          defaultValues.father_dob = formattedDate;
+          console.log("🔍 Converted father DOB to:", formattedDate);
+        }
+      } catch (error) {
+        console.log(
+          "🔍 Could not convert father DOB, keeping original:",
+          initialValues.father_dob
+        );
+      }
+    }
+
+    if (initialValues.mother_dob) {
+      console.log("🔍 Processing mother DOB:", initialValues.mother_dob);
+      // Convert text date to HTML date format if possible
+      try {
+        const date = new Date(initialValues.mother_dob);
+        if (!isNaN(date.getTime())) {
+          const formattedDate = date.toISOString().split("T")[0]; // YYYY-MM-DD format
+          defaultValues.mother_dob = formattedDate;
+          console.log("🔍 Converted mother DOB to:", formattedDate);
+        }
+      } catch (error) {
+        console.log(
+          "🔍 Could not convert mother DOB, keeping original:",
+          initialValues.mother_dob
+        );
+      }
+    }
+
+    // Merge default values with initial values
+    const finalValues = { ...initialValues, ...defaultValues };
+    console.log("Final values with defaults:", finalValues);
+
+    // Log summary of what was processed
+    console.log("📊 SUMMARY OF FIELD PROCESSING:");
+    console.log("✅ Voice bot fields mapped:", Object.keys(initialValues));
+    console.log("🔧 Default values added:", Object.keys(defaultValues));
+    console.log("🎯 Final form values:", Object.keys(finalValues));
+
+    setValues(finalValues);
   };
 
   const mapVoiceBotKeyToFormField = (key: string): string | null => {
     const keyMappings: Record<string, string> = {
+      // Personal Information
       full_legal_name: "legal_name",
       height: "height",
       weight: "weight",
       eye_color: "eye_color",
-      father_dob: "father_dob",
       hair_color: "hair_color",
-      mother_dob: "mother_dob",
       phone_number: "phone_number",
-      children_info: "children_info",
       email_address: "email_address",
-      arrest_history: "arrest_history",
       marital_status: "marital_status",
-      address_history: "address_history",
       current_address: "current_address",
-      father_residence: "father_residence",
+
+      // Children Information
+      children_info: "children_info",
+      number_of_children: "number_of_children",
+
+      // Father Information - ALL FIELDS NOW PROPERLY MAPPED
+      father_dob: "father_dob",
+      father_residence: "father_address", // Maps to father_address field
+      father_country_birth: "father_country",
+
+      // Mother Information - ALL FIELDS NOW PROPERLY MAPPED
+      mother_dob: "mother_dob",
+      mother_residence: "mother_address", // Maps to mother_address field
+      mother_country_birth: "mother_country",
+
+      // Immigration and Legal - ALL FIELDS NOW PROPERLY MAPPED
+      immigration_application: "immigration_application",
+      arrest_history: "arrest_history",
       has_lived_in_usa: "has_lived_in_usa",
-      mother_residence: "mother_residence",
+
+      // Additional fields
+      address_history: "address_history",
       previous_marriage: "previous_marriage",
       employment_history: "employment_history",
-      number_of_children: "number_of_children",
-      father_country_birth: "father_country",
-      mother_country_birth: "mother_country",
-      immigration_application: "immigration_application",
     };
 
-    return keyMappings[key] || key;
+    // Note: The following form fields are NOT provided by voice bot data:
+    // - place_of_birth (Personal Information)
+    // - father_name (Father Information) - NEEDS TO BE ADDED TO VOICE BOT
+    // - mother_name (Mother Information) - NEEDS TO BE ADDED TO VOICE BOT
+    // - father_place_of_birth (Father Information) - NEEDS TO BE ADDED TO VOICE BOT
+    // - mother_place_of_birth (Mother Information) - NEEDS TO BE ADDED TO VOICE BOT
+    // - parent_marriage_date (Father Information) - NEEDS TO BE ADDED TO VOICE BOT
+    // - father_city (Father Information) - NEEDS TO BE ADDED TO VOICE BOT
+    // - mother_city (Mother Information) - NEEDS TO BE ADDED TO VOICE BOT
+
+    return keyMappings[key] || null;
   };
 
   useEffect(() => {

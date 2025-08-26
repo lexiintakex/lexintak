@@ -14,6 +14,8 @@ import { ArrowRight } from "lucide-react";
 import { useApplicationByUserId } from "@/api/applications";
 import Loader from "@/components/ui/loader";
 import PDFSummaryTab from "./client-tabs/pdf-summary";
+import useAuth from "@/hooks/useAuth";
+import VoiceBotHistory from "./client-tabs/voice-bot-history";
 
 const validTabs = [
   "personal-information",
@@ -26,6 +28,7 @@ export default function ClientDetails() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { id } = useParams();
+  const { user } = useAuth();
   const { data, isLoading, isError } = useApplicationByUserId(id as string);
   const tabParam = searchParams.get("selectTab");
 
@@ -71,6 +74,9 @@ export default function ClientDetails() {
               <TabsTrigger value="documents">Documents</TabsTrigger>
               <TabsTrigger value="chat-transcript">Chat Transcript</TabsTrigger>
               <TabsTrigger value="pdf-summary">PDF Summary</TabsTrigger>
+              <TabsTrigger value="voice-bot-history">
+                Voice Bot History
+              </TabsTrigger>
               <TabsTrigger value="status-history">Status History</TabsTrigger>
             </TabsList>
 
@@ -108,6 +114,11 @@ export default function ClientDetails() {
             </TabsContent>
             <TabsContent value="status-history">
               <StatusHistoryTab />
+            </TabsContent>
+            <TabsContent value="voice-bot-history">
+              <VoiceBotHistory
+                session_id={"1c8bc6f6-ac7c-427c-9d41-13717374b204"}
+              />
             </TabsContent>
           </Tabs>
 

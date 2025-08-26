@@ -58,7 +58,7 @@ export const sections: {
         placeholder: "New York, NY, USA",
         type: "text",
         icon: MapPin,
-        required: true,
+        required: false, // Made optional since voice bot doesn't provide this
       },
       {
         id: "current_address",
@@ -95,6 +95,33 @@ export const sections: {
         placeholder: "Hazel",
         type: "text",
         required: true,
+      },
+      {
+        id: "has_lived_in_usa",
+        label: "Have you ever lived in the USA?",
+        type: "toggle",
+        required: false,
+      },
+      {
+        id: "address_history",
+        label: "Address History",
+        placeholder: "List your previous addresses",
+        type: "text",
+        required: false,
+      },
+      {
+        id: "employment_history",
+        label: "Employment History",
+        placeholder: "List your employment history",
+        type: "text",
+        required: false,
+      },
+      {
+        id: "previous_marriage",
+        label: "Previous Marriage Information",
+        placeholder: "Details about previous marriages if any",
+        type: "text",
+        required: false,
       },
     ],
   },
@@ -243,7 +270,7 @@ export const sections: {
         label: "Father's Name",
         placeholder: "John Doe Sr.",
         type: "text",
-        required: true,
+        required: false, // Made optional since voice bot doesn't provide this
       },
       {
         id: "father_dob",
@@ -258,14 +285,14 @@ export const sections: {
         placeholder: "Boston, MA, USA",
         type: "text",
         icon: MapPin,
-        required: true,
+        required: false, // Made optional since voice bot doesn't provide this
       },
       {
         id: "parent_marriage_date",
         label: "Date of Marriage (Father & Mother)",
         type: "date",
         icon: Calendar,
-        required: true,
+        required: false, // Made optional since voice bot doesn't provide this
       },
       {
         id: "father_address",
@@ -279,7 +306,7 @@ export const sections: {
         label: "Father's City",
         placeholder: "Boston",
         type: "text",
-        required: true,
+        required: false, // Made optional since voice bot doesn't provide this
       },
       {
         id: "father_country",
@@ -298,7 +325,7 @@ export const sections: {
         label: "Mother's Name",
         placeholder: "Jane Doe Sr.",
         type: "text",
-        required: true,
+        required: false, // Made optional since voice bot doesn't provide this
       },
       {
         id: "mother_dob",
@@ -313,7 +340,7 @@ export const sections: {
         placeholder: "Chicago, IL, USA",
         type: "text",
         icon: MapPin,
-        required: true,
+        required: false, // Made optional since voice bot doesn't provide this
       },
       {
         id: "mother_address",
@@ -327,7 +354,7 @@ export const sections: {
         label: "Mother's City",
         placeholder: "Chicago",
         type: "text",
-        required: true,
+        required: false, // Made optional since voice bot doesn't provide this
       },
       {
         id: "mother_country",
@@ -346,6 +373,14 @@ export const sections: {
         label: "Have you previously filed any immigration application?",
         type: "toggle", // Yes / No switch
         required: false,
+      },
+      {
+        id: "immigration_details",
+        label: "Immigration Application Details",
+        placeholder: "Details about your immigration applications",
+        type: "text",
+        required: false,
+        dependsOn: { field: "immigration_application", value: true },
       },
       {
         id: "application_type",

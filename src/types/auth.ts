@@ -18,6 +18,7 @@ export type User = {
   is_application_created?: boolean;
   is_voice_bot_session_created?: boolean;
   created_at: string; // or Date if you parse it
+  bot_session_id?: string | null;
 };
 
 export interface SignupData {

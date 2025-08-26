@@ -33,3 +33,28 @@ export const useUserFormResponses = () => {
     },
   });
 };
+
+export const useVapiCallLogs = (sessionId: string) => {
+  return useQuery({
+    queryKey: ["vapiCallLogs", sessionId],
+    queryFn: async () => {
+      if (!sessionId) throw new Error("Session ID is required");
+
+      const response = await axiosInstance.get(
+        `/assistant/session/${sessionId}/logs`
+      );
+      return response.data.data;
+    },
+    enabled: !!sessionId,
+    retry: 1,
+  });
+};
+
+export const fetchVapiCallLogs = async (sessionId: string) => {
+  if (!sessionId) throw new Error("Session ID is required");
+
+  const response = await axiosInstance.get(
+    `/assistant/session/${sessionId}/logs`
+  );
+  return response.data.data;
+};
