@@ -14,7 +14,6 @@ import { ArrowRight } from "lucide-react";
 import { useApplicationByUserId } from "@/api/applications";
 import Loader from "@/components/ui/loader";
 import PDFSummaryTab from "./client-tabs/pdf-summary";
-import useAuth from "@/hooks/useAuth";
 import VoiceBotHistory from "./client-tabs/voice-bot-history";
 
 const validTabs = [
@@ -22,13 +21,14 @@ const validTabs = [
   "documents",
   "chat-transcript",
   "status-history",
+  "pdf-summary",
+  "voice-bot-history",
 ];
 
 export default function ClientDetails() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { id } = useParams();
-  const { user } = useAuth();
   const { data, isLoading, isError } = useApplicationByUserId(id as string);
   const tabParam = searchParams.get("selectTab");
 
@@ -54,20 +54,15 @@ export default function ClientDetails() {
   return (
     <div className="min-h-screen w-full p-3">
       <Card className="mx-auto w-full max-w-full">
-        <CardHeader className="flex justify-between w-full flex-row  items-center">
+        <CardHeader className="flex justify-start w-full flex-row  items-center">
           <CardTitle className="text-2xl text-[#1F1F1F] font-semibold">
             Client Management
           </CardTitle>
-          <div>
-            <button className="bg-blue-primary text-white  px-[20px] py-[10px] rounded-md cursor-pointer hover:bg-blue-800">
-              Generate Complete PDF
-            </button>
-          </div>
         </CardHeader>
 
         <CardContent className="space-y-6 w-full">
           <Tabs value={activeTab} onValueChange={handleTabChange}>
-            <TabsList className="grid grid-cols-5 gap-2">
+            <TabsList className="grid grid-cols-6 gap-2">
               <TabsTrigger value="personal-information">
                 Personal Information
               </TabsTrigger>
@@ -116,9 +111,7 @@ export default function ClientDetails() {
               <StatusHistoryTab />
             </TabsContent>
             <TabsContent value="voice-bot-history">
-              <VoiceBotHistory
-                session_id={"1c8bc6f6-ac7c-427c-9d41-13717374b204"}
-              />
+              <VoiceBotHistory user_id={id as string} />
             </TabsContent>
           </Tabs>
 

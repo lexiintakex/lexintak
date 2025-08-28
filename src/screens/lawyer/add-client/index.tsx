@@ -97,8 +97,8 @@ function AddClient() {
         ...data,
         created_by: lawyerId,
       });
-      push("/lawyer/client-management");
       refetch();
+      push("/lawyer/client-management");
     } catch (error) {
       console.error("error", error);
     }

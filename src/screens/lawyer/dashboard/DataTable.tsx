@@ -185,16 +185,19 @@ export default function DataTable({ tableData }: { tableData: TableData[] }) {
                 </td>
                 <td className="px-4 py-3 whitespace-nowrap">
                   <div className="flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-blue-600 cursor-pointer hover:bg-blue-100"
-                      onClick={() =>
-                        push(`/lawyer/client-details/${row.userId}`)
-                      }
-                    >
-                      <Eye className="h-4 w-4" />
-                    </Button>
+                    {row.status !== "Pending" && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-blue-600 cursor-pointer hover:bg-blue-100"
+                        onClick={() =>
+                          push(`/lawyer/client-details/${row.userId}`)
+                        }
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                    )}
+
                     <Button
                       variant="ghost"
                       size="icon"

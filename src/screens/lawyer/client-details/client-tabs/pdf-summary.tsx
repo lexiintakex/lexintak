@@ -19,13 +19,14 @@ function PDFSummaryTab({
   const [showGenerateModal, setShowGenerateModal] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [pdfError, setPdfError] = useState<string | null>(null);
+  const [pdfKey, setPdfKey] = useState(Date.now()); // cache-buster state
 
   const handleGeneratePDF = async () => {
     setIsGenerating(true);
     try {
       const response = await axiosInstance.post(`/pdf/generate/${client_id}`);
       console.log(response);
-
+      setPdfKey(Date.now());
       setShowGenerateModal(false);
     } catch (error) {
       console.error("Error generating PDF:", error);
@@ -99,7 +100,6 @@ function PDFSummaryTab({
           </div>
         </div>
 
-        {/* PDF Viewer */}
         <div className="border border-gray-200 rounded-lg overflow-hidden">
           {pdfError ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -114,7 +114,7 @@ function PDFSummaryTab({
             </div>
           ) : (
             <iframe
-              src={`${is_completed_pdf_url}#toolbar=1&navpanes=1&scrollbar=1`}
+              src={`${is_completed_pdf_url}?t=${pdfKey}#toolbar=1&navpanes=1&scrollbar=1`}
               className="w-full h-[600px] border-0"
               title="Client Summary PDF"
               onError={() => setPdfError("Failed to load PDF")}

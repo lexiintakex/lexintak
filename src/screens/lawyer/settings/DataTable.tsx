@@ -16,16 +16,21 @@ import * as Checkbox from "@radix-ui/react-checkbox";
 import Image from "next/image";
 import ExportDropdown from "@/components/ui/ExportDropDown";
 import { useRouter } from "next/navigation";
+import { useDeleteLawyer } from "@/api/lawyer";
+import Modal from "@/components/ui/modal";
 
 export default function LaywerDataTable({
   tableData,
+  refetch,
 }: {
-  tableData: LawyerData[];
+  tableData: any[];
+  refetch: () => void;
 }) {
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [page, setPage] = React.useState(1);
-
-  const { push } = useRouter();
+  const { mutate: deleteLawyer } = useDeleteLawyer();
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
+  const [selectedLawyerId, setSelectedLawyerId] = React.useState("");
   const totalPages = Math.ceil(tableData.length / rowsPerPage);
   const pageData = React.useMemo(() => {
     const start = (page - 1) * rowsPerPage;
@@ -33,6 +38,12 @@ export default function LaywerDataTable({
   }, [page, rowsPerPage, tableData]);
 
   React.useEffect(() => setPage(1), [rowsPerPage]);
+
+  const onDeleteLawyer = (lawyerId: string) => {
+    deleteLawyer(lawyerId);
+    setIsDeleteModalOpen(false);
+    refetch();
+  };
 
   return (
     <div className="bg-white rounded-xl border border-gray-100 shadow-sm">
@@ -79,100 +90,119 @@ export default function LaywerDataTable({
                   </Checkbox.Indicator>
                 </Checkbox.Root>
               </th>
-              {[
-                "Admin Name",
-                "Password",
-                "Status",
-                "Role",
-                "Last Activity",
-              ].map((h) => (
-                <th
-                  key={h}
-                  className="px-4 py-2 text-left text-sm font-semibold text-gray-700 whitespace-nowrap"
-                >
-                  {h}
-                </th>
-              ))}
+              {["Admin Name", "Phone", "Status", "Role", "Last Activity"].map(
+                (h) => (
+                  <th
+                    key={h}
+                    className="px-4 py-2 text-left text-sm font-semibold text-gray-700 whitespace-nowrap"
+                  >
+                    {h}
+                  </th>
+                )
+              )}
               <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700 whitespace-nowrap">
                 Actions
               </th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {pageData.map((row, i) => (
-              <tr key={i} className="hover:bg-gray-50">
-                <td className="px-4 py-3">
-                  <Checkbox.Root className="h-4 w-4 rounded border border-gray-300 bg-white flex items-center justify-center">
-                    <Checkbox.Indicator className="text-blue-600">
-                      <svg
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        className="h-4 w-4"
+            {pageData.length > 0 ? (
+              pageData.map((row, i) => (
+                <tr key={i} className="hover:bg-gray-50">
+                  <td className="px-4 py-3">
+                    <Checkbox.Root className="h-4 w-4 rounded border border-gray-300 bg-white flex items-center justify-center">
+                      <Checkbox.Indicator className="text-blue-600">
+                        <svg
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                          className="h-4 w-4"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M16.707 5.293a1 1 0 00-1.414 0L8 12.586 4.707 9.293a1 1 0 00-1.414 1.414l4 4a1 1 0 001.414 0l8-8a1 1 0 000-1.414z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </Checkbox.Indicator>
+                    </Checkbox.Root>
+                  </td>
+                  <td className="px-4 py-3 text-sm whitespace-nowrap">
+                    {row.full_name}
+                  </td>
+                  <td className="px-4 py-3 text-sm whitespace-nowrap">
+                    {row.phone}
+                  </td>
+                  <td className="px-4 py-3">
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        row.status === "Submitted"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-blue-100 text-blue-800"
+                      }`}
+                    >
+                      {row.status}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-sm whitespace-nowrap">
+                    {row.role}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-500 whitespace-nowrap">
+                    {row.last_activity &&
+                    !isNaN(new Date(row.last_activity).getTime())
+                      ? new Date(row.last_activity).toLocaleDateString(
+                          "en-US",
+                          {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          }
+                        )
+                      : "No activity"}
+                  </td>
+                  <td className="px-4 py-3 whitespace-nowrap">
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-red-600 cursor-pointer hover:bg-red-100"
+                        onClick={() => {
+                          setSelectedLawyerId(row.user_id);
+                          setIsDeleteModalOpen(true);
+                        }}
                       >
-                        <path
-                          fillRule="evenodd"
-                          d="M16.707 5.293a1 1 0 00-1.414 0L8 12.586 4.707 9.293a1 1 0 00-1.414 1.414l4 4a1 1 0 001.414 0l8-8a1 1 0 000-1.414z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </Checkbox.Indicator>
-                  </Checkbox.Root>
-                </td>
-                <td className="px-4 py-3 text-sm whitespace-nowrap">
-                  {row.clientName}
-                </td>
-                <td className="px-4 py-3 text-sm whitespace-nowrap">
-                  {row.password}
-                </td>
-                <td className="px-4 py-3">
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      row.status === "Submitted"
-                        ? "bg-green-100 text-green-800"
-                        : "bg-blue-100 text-blue-800"
-                    }`}
-                  >
-                    {row.status}
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-sm whitespace-nowrap">
-                  {row.role}
-                </td>
-                <td className="px-4 py-3 text-sm text-gray-500 whitespace-nowrap">
-                  {row.lastActivity}
-                </td>
-                <td className="px-4 py-3 whitespace-nowrap">
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-blue-600 cursor-pointer hover:bg-blue-100"
-                      onClick={() => push(`/lawyer/client-details/${row.id}`)}
-                    >
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-green-600 cursor-pointer hover:bg-green-100"
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-red-600 cursor-pointer hover:bg-red-100"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td
+                  colSpan={7}
+                  className="px-4 py-10 text-center text-gray-500 text-sm"
+                >
+                  No data available
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>
-
+      {/* I want to show the confirmat modal for the deleteaiton  */}
+      <Modal
+        title="Delete Lawyer"
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={() => onDeleteLawyer(selectedLawyerId)}
+      >
+        <div className="text-sm text-gray-700">
+          <span className="font-medium">
+            Are you sure you want to delete this lawyer?
+          </span>
+          <span className="text-gray-500">This action cannot be undone.</span>
+        </div>
+      </Modal>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-gray-header px-4 py-3 border-t border-gray-200">
         <span className="text-sm text-gray-700">
           Total&nbsp;

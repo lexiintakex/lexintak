@@ -5,12 +5,13 @@ import { Plus, Database, Link as LinkIcon, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import LaywerDataTable from "./DataTable";
 import { generateMockLawyerData } from "./generateLawyerMockData";
+import { useGetLawyers } from "@/api/lawyer";
 
 type CrmOption = "mycase" | "clio" | null;
 
 export default function LawyerSettings() {
   const { push } = useRouter();
-  const tableData = useMemo(() => generateMockLawyerData(15), []);
+  const { data: lawyers, isLoading, refetch } = useGetLawyers(1, 10, "");
 
   const [selectedCrm, setSelectedCrm] = useState<CrmOption>(null);
   const [apiKey, setApiKey] = useState("");
@@ -118,7 +119,7 @@ export default function LawyerSettings() {
         )}
       </div>
 
-      <LaywerDataTable tableData={tableData} />
+      <LaywerDataTable tableData={lawyers ?? []} refetch={refetch} />
     </>
   );
 }

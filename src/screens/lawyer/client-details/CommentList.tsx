@@ -30,6 +30,9 @@ interface Comment {
   created_by: string;
   role: string;
   created_at: string;
+  canEditOrDelete: boolean;
+  profile_image?: string;
+  username: string;
 }
 
 interface Props {
@@ -109,10 +112,9 @@ export default function ModernCommentsList({ type, userId }: Props) {
         </p>
       </Modal>
 
-      {/* Header with gradient background */}
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-100">
+      <div className="bg-blue-50 rounded-2xl p-6 border border-blue-200 shadow-sm">
         <h3 className="text-xl font-bold flex items-center gap-3 text-gray-800">
-          <div className="p-2 bg-blue-primary rounded-xl">
+          <div className="p-2 bg-blue-primary rounded-xl shadow-sm">
             <MessageCircle className="h-6 w-6 text-white" />
           </div>
           Case Discussion
@@ -137,14 +139,14 @@ export default function ModernCommentsList({ type, userId }: Props) {
         </div>
       ) : (
         <div className="space-y-6 max-h-[600px] overflow-y-auto pr-2">
-          {comments.map((comment: any) => {
+          {comments.map((comment: Comment) => {
             const lawyer = isLawyer(comment.role);
 
             return (
               <div
                 key={comment.id}
                 className={cn(
-                  "flex gap-4 group",
+                  "flex gap-4 group transition-all duration-200",
                   lawyer ? "justify-start" : "justify-end"
                 )}
               >
@@ -155,10 +157,10 @@ export default function ModernCommentsList({ type, userId }: Props) {
                       <img
                         src={comment.profile_image || "/placeholder.svg"}
                         alt={comment.username}
-                        className="w-12 h-12 rounded-full object-cover border-2 border-blue-200 shadow-sm"
+                        className="w-12 h-12 rounded-full object-cover border-2 border-blue-200 shadow-sm hover:shadow-md transition-shadow"
                       />
                     ) : (
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-700 to-blue-primary text-white flex items-center justify-center font-bold text-lg shadow-lg">
+                      <div className="w-12 h-12 rounded-full bg-blue-primary text-white flex items-center justify-center font-bold text-lg shadow-sm hover:shadow-md transition-shadow">
                         <Scale className="h-6 w-6" />
                       </div>
                     )}
@@ -167,23 +169,23 @@ export default function ModernCommentsList({ type, userId }: Props) {
 
                 <div
                   className={cn(
-                    "max-w-[70%] rounded-2xl shadow-sm transition-all duration-200 group-hover:shadow-md",
+                    "max-w-[70%] rounded-2xl shadow-sm transition-all duration-200 group-hover:shadow-md hover:scale-[1.02]",
                     lawyer
-                      ? "bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200"
-                      : "bg-gradient-to-br from-emerald-50 to-emerald-100 border border-emerald-200"
+                      ? "bg-blue-50 border border-blue-200"
+                      : "bg-white border border-gray-200"
                   )}
                 >
                   <div
                     className={cn(
                       "px-4 py-3 border-b rounded-t-2xl",
                       lawyer
-                        ? "bg-gradient-to-r from-blue-700 to-blue-primary border-blue-300"
-                        : "bg-gradient-to-r from-emerald-500 to-emerald-600 border-emerald-300"
+                        ? "bg-blue-primary border-blue-300 text-white"
+                        : "bg-gray-100 border-gray-200 text-gray-800"
                     )}
                   >
                     <div className="flex items-center justify-between w-[300px]">
                       <div className="flex items-center justify-between w-full gap-2">
-                        <div className="flex items-center gap-2 text-white">
+                        <div className="flex items-center gap-2">
                           {lawyer ? (
                             <Scale className="h-4 w-4" />
                           ) : (
@@ -193,7 +195,12 @@ export default function ModernCommentsList({ type, userId }: Props) {
                             <span className="font-semibold text-sm">
                               {comment.username}
                             </span>
-                            <p className="text-xs text-white/80">
+                            <p
+                              className={cn(
+                                "text-xs",
+                                lawyer ? "text-white/90" : "text-gray-600"
+                              )}
+                            >
                               {new Date(comment.created_at).toLocaleString(
                                 "en-US",
                                 {
@@ -208,10 +215,10 @@ export default function ModernCommentsList({ type, userId }: Props) {
                         </div>
                         <span
                           className={cn(
-                            "text-xs px-2 py-1 rounded-full font-medium",
+                            "text-xs px-3 py-1 rounded-full font-medium shadow-sm",
                             lawyer
-                              ? "bg-blue-100 text-blue-800"
-                              : "bg-emerald-100 text-emerald-800"
+                              ? "bg-white text-blue-600"
+                              : "bg-gray-800 text-white"
                           )}
                         >
                           {lawyer ? "Lawyer" : "Client"}
@@ -234,10 +241,10 @@ export default function ModernCommentsList({ type, userId }: Props) {
                               type="submit"
                               onClick={handleSave}
                               className={cn(
-                                "px-4 py-2 rounded-lg font-medium text-white transition-colors flex items-center gap-2",
+                                "px-4 py-2 rounded-lg font-medium text-white transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md hover:scale-105",
                                 lawyer
-                                  ? "bg-blue-500 hover:bg-blue-600"
-                                  : "bg-emerald-500 hover:bg-emerald-600"
+                                  ? "bg-blue-600 hover:bg-blue-700"
+                                  : "bg-gray-800 hover:bg-gray-900"
                               )}
                             >
                               <Check size={16} /> Save
@@ -246,7 +253,7 @@ export default function ModernCommentsList({ type, userId }: Props) {
                               onClick={() => setEditingId(null)}
                               variant="outline"
                               size="sm"
-                              className="flex items-center gap-2"
+                              className="flex items-center gap-2 hover:scale-105 transition-transform"
                             >
                               <X size={16} /> Cancel
                             </Button>
@@ -268,10 +275,10 @@ export default function ModernCommentsList({ type, userId }: Props) {
                           size="sm"
                           onClick={() => handleEdit(comment)}
                           className={cn(
-                            "text-xs cursor-pointer font-medium transition-colors flex items-center gap-1",
+                            "text-xs cursor-pointer font-medium transition-all duration-200 flex items-center gap-1 hover:scale-105",
                             lawyer
-                              ? "text-blue-primary hover:text-blue-primary   hover:bg-blue-50"
-                              : "text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                              ? "text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                              : "text-gray-600 hover:text-gray-800 hover:bg-gray-50"
                           )}
                         >
                           <Edit size={14} /> Edit
@@ -280,7 +287,7 @@ export default function ModernCommentsList({ type, userId }: Props) {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleDelete(comment.id)}
-                          className="text-red-500 cursor-pointer hover:text-red-700 hover:bg-red-50 text-xs font-medium flex items-center gap-1"
+                          className="text-red-500 cursor-pointer hover:text-red-700 hover:bg-red-50 text-xs font-medium flex items-center gap-1 hover:scale-105 transition-all duration-200"
                         >
                           <Trash2 size={14} /> Delete
                         </Button>
@@ -297,10 +304,10 @@ export default function ModernCommentsList({ type, userId }: Props) {
                       <img
                         src={comment.profile_image || "/placeholder.svg"}
                         alt={comment.username}
-                        className="w-12 h-12 rounded-full object-cover border-2 border-emerald-200 shadow-sm"
+                        className="w-12 h-12 rounded-full object-cover border-2 border-gray-200 shadow-sm hover:shadow-md transition-shadow"
                       />
                     ) : (
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 text-white flex items-center justify-center font-bold text-lg shadow-lg">
+                      <div className="w-12 h-12 rounded-full bg-gray-600 text-white flex items-center justify-center font-bold text-lg shadow-sm hover:shadow-md transition-shadow">
                         <User className="h-6 w-6" />
                       </div>
                     )}

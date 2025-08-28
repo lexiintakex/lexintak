@@ -28,6 +28,7 @@ export default function VoiceAssistantScreen() {
   const [isRecording, setIsRecording] = useState(false);
   const [isMicMuted, setIsMicMuted] = useState(false);
   const [sessionId, setSessionId] = useState("");
+  const [callId, setCallId] = useState("");
   const [isSpeakerOn, setIsSpeakerOn] = useState(true);
   const [transcripts, setTranscripts] = useState<
     Array<{ role: string; transcript: string; timestamp: Date }>
@@ -41,9 +42,6 @@ export default function VoiceAssistantScreen() {
     isError,
   } = useWorkflowId(user?.form_type, globalLanguage);
 
-  console.log("🚀 ~ VoiceAssistantScreen ~ workflowId:", workflowId);
-
-  // Auto-scroll to bottom when new transcripts arrive
   useEffect(() => {
     if (transcriptRef.current) {
       transcriptRef.current.scrollTop = transcriptRef.current.scrollHeight;
@@ -59,12 +57,34 @@ export default function VoiceAssistantScreen() {
       setTranscripts([]);
     });
 
-    vapiInstance.on("call-end", () => {
-      console.log("🔴 Call ended");
+    vapiInstance.on("call-start-success", (event) => {
+      console.log("🎯 Call start success:", event);
+      if (event.callId) {
+        setCallId(event.callId);
+        localStorage.setItem("callId", event.callId);
+        console.log("✅ Call ID captured:", event.callId);
+      }
+    });
+
+    vapiInstance.on("call-start-progress", (event) => {
+      console.log("📊 Call start progress:", event);
+    });
+
+    vapiInstance.on("call-start-failed", (event) => {
+      console.log("❌ Call start failed:", event);
+    });
+
+    vapiInstance.on("call-end", async () => {
+      console.log("🔴 Call  ended");
+      const localCallId = localStorage.getItem("callId");
       setIsRecording(false);
       setIsMicMuted(false);
       setIsSpeakerOn(true);
-      router.push("/client/dashboard/client-intake-form");
+      router.push(
+        `/client/dashboard/client-intake-form?query=${
+          callId ? callId : localCallId
+        }`
+      );
     });
 
     vapiInstance.on("message", (message) => {
@@ -78,14 +98,14 @@ export default function VoiceAssistantScreen() {
         setTranscripts((prev) => [...prev, newTranscript]);
       }
     });
-  }, []);
+  }, [callId, user?.user_id, router]);
 
   const handleCreateSession = async () => {
     if (!workflowId) return;
 
     try {
       const response = await axiosInstance.post("/assistant/session", {
-        workflowId: workflowId,
+        // workflowId: workflowId,
         language: globalLanguage,
         form_type: user?.form_type,
       });
@@ -99,9 +119,21 @@ export default function VoiceAssistantScreen() {
     if (!vapi || !user || !workflowId) return;
 
     try {
+      // Create session first
       const sessionId = await handleCreateSession();
-      console.log("Session ID:", sessionId);
-      vapi.start(null, { maxDurationSeconds: 1800 }, null, workflowId);
+      if (sessionId) {
+        setSessionId(sessionId);
+      }
+
+      console.log("🚀 Starting VAPI call...");
+      const call = await vapi.start(
+        null,
+        { maxDurationSeconds: 1800 },
+        null,
+        workflowId
+      );
+
+      console.log("📞 Call object returned:", call);
 
       setIsRecording(true);
     } catch (err) {
@@ -112,6 +144,10 @@ export default function VoiceAssistantScreen() {
   const handleEndCall = () => {
     if (!vapi) return;
     vapi.stop();
+    setIsRecording(false);
+    setIsMicMuted(false);
+    setIsSpeakerOn(true);
+    router.push("/client/dashboard/client-intake-form");
   };
 
   const toggleMicMute = () => {
@@ -128,7 +164,10 @@ export default function VoiceAssistantScreen() {
     setIsSpeakerOn((prev) => !prev);
   };
 
-  if (isLoading) return <Loader text="Preparing voice assistant..." />;
+  if (isLoading)
+    return (
+      <Loader text="Please wait for 1 minute we are collecting your data from the chatbot..." />
+    );
   if (isError)
     return <ErrorMessage message="Unable to load assistant workflow." />;
 
@@ -214,6 +253,42 @@ export default function VoiceAssistantScreen() {
                 </div>
               </Button>
             </div>
+
+            {/* Display Call Information */}
+            {(sessionId || callId) && (
+              <div className="mt-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
+                <h4 className="text-sm font-semibold text-blue-800 mb-2">
+                  Call Information:
+                </h4>
+                <div className="space-y-2 text-sm">
+                  {sessionId && (
+                    <div className="flex items-center space-x-2">
+                      <span className="text-blue-600 font-medium">
+                        Session ID:
+                      </span>
+                      <code className="px-2 py-1 bg-blue-100 rounded text-blue-800 font-mono text-xs">
+                        {sessionId}
+                      </code>
+                    </div>
+                  )}
+                  {callId && (
+                    <div className="flex items-center space-x-2">
+                      <span className="text-green-600 font-medium">
+                        Call ID:
+                      </span>
+                      <code className="px-2 py-1 bg-green-100 rounded text-green-800 font-mono text-xs">
+                        {callId}
+                      </code>
+                    </div>
+                  )}
+                  {!callId && (
+                    <div className="text-amber-600 text-xs">
+                      ⏳ Waiting for call ID from VAPI...
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       ) : (
