@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "@/lib/axios";
 import { useMutation } from "@tanstack/react-query";
 
@@ -119,8 +119,7 @@ export const useUpdateProfile = (
     mutationFn: async (formData: FormData) => {
       const res = await axiosInstance.put("/update", formData, {
         headers: {
-          // DO NOT set Content-Type manually!
-          // Let the browser handle it for multipart/form-data
+          "Content-Type": "multipart/form-data",
         },
       });
       return res.data;
@@ -160,6 +159,68 @@ export const useClientStatusTable = (filters: Filters = {}) => {
     queryFn: async () => {
       const res = await axiosInstance.get("/clients/status-table", {
         params: filters,
+      });
+      return res.data;
+    },
+  });
+};
+
+interface ApplicationNotePayload {
+  clientId: string;
+  note: string;
+  noteId?: string;
+}
+
+export const useCreateApplicationNote = (
+  onSuccess?: () => void,
+  onError?: (msg: string) => void
+) => {
+  return useMutation({
+    mutationFn: async (payload: ApplicationNotePayload) => {
+      const res = await axiosInstance.post("/application-notes", payload);
+      return res.data;
+    },
+    onSuccess: () => {
+      onSuccess?.();
+    },
+    onError: (error: any) => {
+      const message =
+        error.response?.data?.error || "Failed to create application note";
+      onError?.(message);
+    },
+  });
+};
+
+export const useUpdateApplicationNote = (
+  onSuccess?: () => void,
+  onError?: (msg: string) => void
+) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: ApplicationNotePayload) => {
+      const res = await axiosInstance.put("/application-notes", payload);
+      return res.data;
+    },
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["notesByClient", variables.clientId],
+      });
+      onSuccess?.();
+    },
+    onError: (error: any) => {
+      const message =
+        error.response?.data?.error || "Failed to update application note";
+      onError?.(message);
+    },
+  });
+};
+
+export const useGetNotesByClient = (clientId: string) => {
+  return useQuery({
+    queryKey: ["notesByClient", clientId],
+    queryFn: async () => {
+      const res = await axiosInstance.get("/application-notes", {
+        params: { clientId },
       });
       return res.data;
     },

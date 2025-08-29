@@ -1,22 +1,66 @@
 "use client";
 import { useState, useEffect } from "react";
 import Modal from "./modal";
+import {
+  useCreateApplicationNote,
+  useGetNotesByClient,
+  useUpdateApplicationNote,
+} from "@/api/auth";
+import Loader from "./loader";
 
 interface Props {
   open: boolean;
   current: string;
   onSave: (newNote: string) => void;
   onClose: () => void;
+  clientId: string;
 }
 
 export default function CaseNotesModal({
   open,
   current,
-  onSave,
   onClose,
+  clientId,
 }: Props) {
   const [val, setVal] = useState(current);
   useEffect(() => setVal(current), [current]);
+  const { mutateAsync: createNote } = useCreateApplicationNote();
+  const { mutateAsync: updateNote } = useUpdateApplicationNote();
+  const {
+    data: notes,
+    isLoading: isNotesLoading,
+    refetch,
+  } = useGetNotesByClient(clientId);
+
+  useEffect(() => {
+    if (notes) {
+      setVal(notes[0]?.note || "");
+    }
+  }, [notes, clientId, open]);
+
+  const handleSave = async () => {
+    try {
+      if (notes && notes.length > 0) {
+        await updateNote({
+          noteId: notes[0].id,
+          clientId,
+          note: val,
+        });
+        refetch();
+        onClose();
+      } else {
+        await createNote({ clientId, note: val });
+        refetch();
+        onClose();
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  if (isNotesLoading) {
+    return <Loader text="Loading case notes..." />;
+  }
 
   return (
     <Modal
@@ -33,7 +77,7 @@ export default function CaseNotesModal({
             Cancel
           </button>
           <button
-            onClick={() => onSave(val)}
+            onClick={handleSave}
             className="px-4 cursor-pointer py-2 rounded bg-blue-primary text-white"
           >
             Save

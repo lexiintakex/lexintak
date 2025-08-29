@@ -311,6 +311,7 @@ export default function DataTable({ tableData }: { tableData: TableData[] }) {
       />
       {noteRow && (
         <CaseNotesModal
+          clientId={noteRow.userId}
           open={modalOpen}
           current={noteRow.note as string}
           onSave={saveNote}

@@ -2,7 +2,6 @@
 
 import React from "react";
 import DataTable from "../dashboard/DataTable";
-import { generateMockClientData } from "./generateMockClientData";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useClientStatusTable } from "@/api/auth";
