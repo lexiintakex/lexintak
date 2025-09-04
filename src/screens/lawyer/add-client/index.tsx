@@ -49,6 +49,7 @@ function AddClient() {
       options: [
         { value: "I130", label: "I-130" },
         { value: "I485", label: "I-485" },
+        { value: "I601", label: "I-601" },
       ],
     },
     {
