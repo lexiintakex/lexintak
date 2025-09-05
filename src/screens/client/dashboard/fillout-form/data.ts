@@ -1,6 +1,8 @@
 import { FieldMeta } from "@/components/ui/add-input";
 import { Calendar, User, Phone, Mail, MapPin, Map } from "lucide-react";
 
+// Legacy sections - kept for backward compatibility
+// New code should use caseTypes.ts for dynamic form rendering
 export const sections: {
   title: string;
   dependsOn?: { field: string; value: any };
@@ -495,6 +497,8 @@ export const sections: {
   },
 ];
 
+// Legacy field mappings - kept for backward compatibility
+// New code should use caseTypes.ts for dynamic form rendering
 export const fieldMappings: Record<string, Record<string, string>> = {
   passport: {
     name: "legal_name",

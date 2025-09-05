@@ -1,11 +1,15 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import InputField from "@/components/ui/add-input";
 import { toast } from "react-toastify";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowRight } from "lucide-react";
-import { fieldMappings, sections } from "./data";
+import {
+  caseTypeDefinitions,
+  caseTypeFieldMappings,
+  caseTypeVoiceBotMappings,
+} from "./caseTypes";
 import axiosInstance from "@/lib/axios";
 import useAuth from "@/hooks/useAuth";
 import { documentTypes } from "@/lib/utils";
@@ -18,6 +22,17 @@ export default function ClientIntakeForm() {
   const { data: voiceBotData, refetch } = useUserFormResponses();
   const searchParams = useSearchParams();
   const callId = searchParams.get("query");
+
+  // Get case type from user, default to I130 for backward compatibility
+  const caseType = user?.form_type?.toUpperCase() || "I130";
+  const caseDefinition =
+    caseTypeDefinitions[caseType as keyof typeof caseTypeDefinitions] ||
+    caseTypeDefinitions.I130;
+  const sections = caseDefinition.sections;
+  const fieldMappings =
+    caseTypeFieldMappings[caseType] || caseTypeFieldMappings.I130;
+  const voiceBotMappings =
+    caseTypeVoiceBotMappings[caseType] || caseTypeVoiceBotMappings.I130;
 
   const [values, setValues] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
@@ -60,9 +75,16 @@ export default function ClientIntakeForm() {
     }, 60_000);
 
     return () => clearTimeout(timer);
-  }, [callId, user?.user_id]);
+  }, [callId, user?.user_id, refetch, router]);
 
-  const fillFormWithPriorityData = () => {
+  const mapVoiceBotKeyToFormField = useCallback(
+    (key: string): string | null => {
+      return voiceBotMappings[key] || null;
+    },
+    [voiceBotMappings]
+  );
+
+  const fillFormWithPriorityData = useCallback(() => {
     const initialValues: Record<string, string> = {};
 
     if (voiceBotData) {
@@ -83,7 +105,7 @@ export default function ClientIntakeForm() {
         if (parsed?.response) {
           const typeMapping = fieldMappings[type] || {};
           Object.entries(parsed.response).forEach(([ocrKey, value]) => {
-            const formFieldId = typeMapping[ocrKey];
+            const formFieldId = typeMapping[ocrKey as keyof typeof typeMapping];
             if (formFieldId && value && !initialValues[formFieldId]) {
               initialValues[formFieldId] = String(value);
             }
@@ -98,110 +120,116 @@ export default function ClientIntakeForm() {
         .map((field) => field.id)
     );
 
-    const defaultValues: Record<string, string> = {
-      immigration_application: initialValues.immigration_application || "true",
-    };
+    const defaultValues: Record<string, string> = {};
 
-    if (
-      initialValues.immigration_application &&
-      typeof initialValues.immigration_application === "string"
-    ) {
+    // Case-specific default values
+    if (caseType === "I130") {
+      defaultValues.immigration_application =
+        initialValues.immigration_application || "true";
+
       if (
-        initialValues.immigration_application !== "true" &&
-        initialValues.immigration_application !== "false"
+        initialValues.immigration_application &&
+        typeof initialValues.immigration_application === "string"
       ) {
-        defaultValues.immigration_details =
-          initialValues.immigration_application;
-        defaultValues.immigration_application = "true";
-      }
-    }
-
-    if (initialValues.father_address && !initialValues.father_place_of_birth) {
-      const fatherCity = initialValues.father_address.split(",")[0]?.trim();
-      if (fatherCity) {
-        defaultValues.father_place_of_birth = fatherCity;
-      }
-    }
-
-    if (initialValues.mother_address && !initialValues.mother_place_of_birth) {
-      const motherCity = initialValues.mother_address.split(",")[0]?.trim();
-      if (motherCity) {
-        defaultValues.mother_place_of_birth = motherCity;
-      }
-    }
-
-    if (!initialValues.father_name) {
-      defaultValues.father_name = "Not provided by voice bot";
-    }
-
-    if (!initialValues.mother_name) {
-      defaultValues.mother_name = "Not provided by voice bot";
-    }
-
-    if (initialValues.father_dob) {
-      try {
-        const date = new Date(initialValues.father_dob);
-        if (!isNaN(date.getTime())) {
-          const formattedDate = date.toISOString().split("T")[0];
-          defaultValues.father_dob = formattedDate;
+        if (
+          initialValues.immigration_application !== "true" &&
+          initialValues.immigration_application !== "false"
+        ) {
+          defaultValues.immigration_details =
+            initialValues.immigration_application;
+          defaultValues.immigration_application = "true";
         }
-      } catch (error) {}
-    }
+      }
 
-    if (initialValues.mother_dob) {
-      try {
-        const date = new Date(initialValues.mother_dob);
-        if (!isNaN(date.getTime())) {
-          const formattedDate = date.toISOString().split("T")[0];
-          defaultValues.mother_dob = formattedDate;
+      if (
+        initialValues.father_address &&
+        !initialValues.father_place_of_birth
+      ) {
+        const fatherCity = initialValues.father_address.split(",")[0]?.trim();
+        if (fatherCity) {
+          defaultValues.father_place_of_birth = fatherCity;
         }
-      } catch (error) {}
+      }
+
+      if (
+        initialValues.mother_address &&
+        !initialValues.mother_place_of_birth
+      ) {
+        const motherCity = initialValues.mother_address.split(",")[0]?.trim();
+        if (motherCity) {
+          defaultValues.mother_place_of_birth = motherCity;
+        }
+      }
+
+      if (!initialValues.father_name) {
+        defaultValues.father_name = "Not provided by voice bot";
+      }
+
+      if (!initialValues.mother_name) {
+        defaultValues.mother_name = "Not provided by voice bot";
+      }
+
+      if (initialValues.father_dob) {
+        try {
+          const date = new Date(initialValues.father_dob);
+          if (!isNaN(date.getTime())) {
+            const formattedDate = date.toISOString().split("T")[0];
+            defaultValues.father_dob = formattedDate;
+          }
+        } catch (error) {}
+      }
+
+      if (initialValues.mother_dob) {
+        try {
+          const date = new Date(initialValues.mother_dob);
+          if (!isNaN(date.getTime())) {
+            const formattedDate = date.toISOString().split("T")[0];
+            defaultValues.mother_dob = formattedDate;
+          }
+        } catch (error) {}
+      }
+    } else if (caseType === "I601") {
+      // I-601 specific default values
+      if (initialValues.date_of_birth) {
+        try {
+          const date = new Date(initialValues.date_of_birth);
+          if (!isNaN(date.getTime())) {
+            const formattedDate = date.toISOString().split("T")[0];
+            defaultValues.date_of_birth = formattedDate;
+          }
+        } catch (error) {}
+      }
+
+      if (initialValues.due_date) {
+        try {
+          const date = new Date(initialValues.due_date);
+          if (!isNaN(date.getTime())) {
+            const formattedDate = date.toISOString().split("T")[0];
+            defaultValues.due_date = formattedDate;
+          }
+        } catch (error) {}
+      }
+
+      if (initialValues.deportation_date) {
+        try {
+          const date = new Date(initialValues.deportation_date);
+          if (!isNaN(date.getTime())) {
+            const formattedDate = date.toISOString().split("T")[0];
+            defaultValues.deportation_date = formattedDate;
+          }
+        } catch (error) {}
+      }
     }
 
     const finalValues = { ...initialValues, ...defaultValues };
     setValues(finalValues);
-  };
-
-  const mapVoiceBotKeyToFormField = (key: string): string | null => {
-    const keyMappings: Record<string, string> = {
-      // Personal Information
-      full_legal_name: "legal_name",
-      height: "height",
-      weight: "weight",
-      eye_color: "eye_color",
-      hair_color: "hair_color",
-      phone_number: "phone_number",
-      email_address: "email_address",
-      marital_status: "marital_status",
-      current_address: "current_address",
-
-      // Children Information
-      children_info: "children_info",
-      number_of_children: "number_of_children",
-
-      // Father Information - ALL FIELDS NOW PROPERLY MAPPED
-      father_dob: "father_dob",
-      father_residence: "father_address", // Maps to father_address field
-      father_country_birth: "father_country",
-
-      // Mother Information - ALL FIELDS NOW PROPERLY MAPPED
-      mother_dob: "mother_dob",
-      mother_residence: "mother_address", // Maps to mother_address field
-      mother_country_birth: "mother_country",
-
-      // Immigration and Legal - ALL FIELDS NOW PROPERLY MAPPED
-      immigration_application: "immigration_application",
-      arrest_history: "arrest_history",
-      has_lived_in_usa: "has_lived_in_usa",
-
-      // Additional fields
-      address_history: "address_history",
-      previous_marriage: "previous_marriage",
-      employment_history: "employment_history",
-    };
-
-    return keyMappings[key] || null;
-  };
+  }, [
+    voiceBotData,
+    caseType,
+    fieldMappings,
+    sections,
+    mapVoiceBotKeyToFormField,
+  ]);
 
   useEffect(() => {
     const responses: Record<string, any> = {};
@@ -226,7 +254,7 @@ export default function ClientIntakeForm() {
 
   useEffect(() => {
     fillFormWithPriorityData();
-  }, [voiceBotData]);
+  }, [voiceBotData, fillFormWithPriorityData]);
 
   useEffect(() => {
     const updatedVisibility: Record<string, boolean> = {};
@@ -244,7 +272,7 @@ export default function ClientIntakeForm() {
     });
 
     setVisibleFields(updatedVisibility);
-  }, [values]);
+  }, [values, sections]);
 
   const handleChange = (key: string, val: string) => {
     setValues((prev) => ({ ...prev, [key]: val }));
