@@ -61,7 +61,7 @@ export const useSendOtp = (
 
 interface VerifyOtpPayload {
   type: "email" | "phone";
-  email: string; // or phone
+  email: string;
   otp: string;
 }
 

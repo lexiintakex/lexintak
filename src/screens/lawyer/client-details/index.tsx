@@ -108,7 +108,7 @@ export default function ClientDetails() {
               />
             </TabsContent>
             <TabsContent value="status-history">
-              <StatusHistoryTab />
+              <StatusHistoryTab user_id={id as string} />
             </TabsContent>
             <TabsContent value="voice-bot-history">
               <VoiceBotHistory user_id={id as string} />
